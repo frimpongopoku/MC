@@ -1,0 +1,6 @@
+{
+  "editor.fontFamily": "Ubuntu Mono, monospace, 'Droid Sans Fallback'",
+  "prettier.stylelintIntegration": true,
+  "prettier.tabWidth": 2,
+  "editor.tabSize": 2
+}
