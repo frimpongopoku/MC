@@ -17,7 +17,14 @@ use App\ShipmentNotification;
 use Carbon\Carbon;
 class AppEngineController extends Controller
 {
-
+    public function rectByManager(Request $request){
+			$not = ShipmentNotification::where('id',$request->id)->first(); 
+			$k = KitchenShipment::where('id',$not->kitchen_shipment_id)->first();
+			$c = CenterShipment::where('id',$not->center_shipment_id)->first();
+			$k->update(['description'=>$request->kitchen_description]); 
+			$c->update(['description'=>$request->center_description]);
+			return 'true';
+    }
     public function receiveValuesFromCenter(Request $request){
         $id = (int) explode(':]',$request->title)[0];
         $not = ShipmentNotification::where('id',$id)->first();
@@ -27,6 +34,7 @@ class AppEngineController extends Controller
         $new->center_id = Session::get('center-auth')->id; 
         $new->kitchen_id = $not->kitchen_id;
         $new->kitchen_name = $from_kitchen->name;
+        $new->shipment_notification_id = $not->id;
         $new->save();
         $not->update([
             'center_shipment_id'=>$new->id,
@@ -54,5 +62,6 @@ class AppEngineController extends Controller
         $notification->kitchen_sorted=1;
         $notification->center_id = $dest->id;
         $notification->save();
+        $new->update(['shipment_notification_id'=>$notification->id]);
     }
 }

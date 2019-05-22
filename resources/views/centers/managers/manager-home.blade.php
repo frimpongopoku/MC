@@ -1,16 +1,17 @@
 @extends('navs.app')
-@section('title')
-
+@section('custom-title')
+  Manager
 @endsection 
 
 @section('custom-style')
-
 @endsection
 @section('content')
-  <h1>I am not your regular manager </h1>
+  <div class="col-md-10 col-lg-10 col-sm-10 col-xs-12 offset-md-1" style="padding:30px;"> 
+    <div id="react-manager-div"> 
+    </div>
+  </div>
+    
 @endsection 
 
-
 @section('custom-js')
-
 @endsection

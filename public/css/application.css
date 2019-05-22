@@ -1,3 +1,6 @@
+.inline{
+  display:inline-block;
+}
 .s-btn-active{
   background:#dc7234; 
   color:yellow; 

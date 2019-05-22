@@ -26,6 +26,8 @@ Route::get('receive-values-from/center','AppEngineController@receiveValuesFromCe
 Route::get('get/centers','AppController@getCenters');
 Route::get('get/pastries','AppController@getPastries');
 Route::get('get/center/shipments','AppController@getCenterShipments');
+Route::get('get/shipment-for-management','AppController@getShipmentForManagement');
+Route::get('/manager/rectify','AppEngineController@rectByManager');
 
 
 
@@ -35,6 +37,11 @@ Route::get('get/center/shipments','AppController@getCenterShipments');
 
 
 
+
+
+Route::get('get/some',function(){
+   return  App\ShipmentNotification::with('kitchenShipment')->first();
+});
 Route::get('/clear/me',function(){
     Session::forget('center-auth');
     Session::forget('manager-auth');

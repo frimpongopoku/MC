@@ -18,6 +18,9 @@
 				<center><h1><i class="fa fa-sign-out" style="margin-top:9px;"></i></h1> </center>
 		</div>
 		<div class="components"> 
+			@if($last_ship)
+				<p class="alert alert-info">Last items were counted from {{$last_ship->kitchen_name}} {{$last_ship->created_at->diffForHumans()}}
+			@endif
 			<div id="creation-area"> 
 				<div id="center-react-div"></div>
 			</div>

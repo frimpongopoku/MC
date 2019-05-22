@@ -40,7 +40,7 @@ export default class CenterView extends Component {
     }
     else{
       return (<center>
-          <h3>No items have been shipped to this center yet. Please contact the kitchen staff to ship. <br/>
+          <h3>No items have been shipped to this center yet.<br/> Please contact the kitchen staff to ship. <br/>
             Enjoy your free time
           </h3>
       </center>)

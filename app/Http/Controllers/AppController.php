@@ -17,6 +17,10 @@ use App\CenterShipment;
 class AppController extends Controller
 {
 
+	
+	public function getShipmentForManagement(){
+		return ShipmentNotification::where(['center_id'=>Session::get('manager-auth')->center_id,'center_sorted'=>1,'sorted'=>0])->with('kitchenShipment','centerShipment')->get();
+	}
 	public function getCenterShipments(){
 		return ShipmentNotification::where(['center_id'=>Session::get('center-auth')->id,'center_sorted'=>0])->get();
 	}
@@ -72,7 +76,7 @@ class AppController extends Controller
 			if($found){
 				Session::put('manager-auth',$found); 
 				Session::forget('temp-manager-det');
-				return view('centers.manager-home');
+				return view('centers.managers.manager-home');
 			}
 			else{
 				return redirect('/centers/management');
@@ -80,17 +84,18 @@ class AppController extends Controller
 		}
 	}
 	public function goToCenterPanel(){
+		$last_ship = CenterShipment::orderBy('id','DESC')->first();
 		$all_shipments = CenterShipment::orderBy('id','DESC')->take(300)->get();
 		$name = Session::get('temp-center-det'); 
 		if(Session::has('center-auth')){
-			return view('centers.center-home',compact('all_shipments'));
+			return view('centers.center-home',compact('last_ship','all_shipments'));
 		}
 		else{
 			$found = Center::where('name',$name)->first(); 
 			if($found){
 				Session::put('center-auth',$found); 
 				Session::forget('temp-center-det');
-				return view('centers.center-home',compact('all_shipments'));
+				return view('centers.center-home',compact('last_ship','all_shipments'));
 			}
 			else{
 				return redirect('/centers');
