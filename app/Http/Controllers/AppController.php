@@ -14,10 +14,173 @@ use App\Pastry;
 use App\KitchenShipment;
 use App\ShipmentNotification;
 use App\CenterShipment;
+use App\CompleteShipment;
+use PDF;
+use Carbon\Carbon;
 class AppController extends Controller
 {
 
-	
+	public function downloadCompleteShipments(){
+		$carbonized = new Carbon();
+		$humanized = $carbonized->format('l\\, jS \\of F Y');
+		$pdf = \PDF::loadHTML($this->generateCompHtml());
+		return $pdf->download("Complete Shipment records download - $humanized");
+	}
+	public function downloadShipmentRecords($which){
+		$carbonized = new Carbon();
+		$humanized = $carbonized->format('l\\, jS \\of F Y');
+		$pdf = \PDF::loadHTML($this->generateLogsHtml($which));
+		return $pdf->download("$which records download - $humanized");
+	}
+	function stringifyB($desc){
+		$sent = ""; 
+		foreach(explode(",",$desc) as $k){
+			$temp = explode(':',$k);
+			$itemName = $temp[0]; 
+			$amount = $temp[1]; 
+			if($sent == ""){
+				$sent = $itemName.' '.$amount; 
+			}
+			else{
+				$sent = $sent.', '.$itemName.' '.$amount;
+			}
+		}
+		return $sent;
+	}
+	function stringify($desc){
+		$sent = ""; 
+		foreach(explode("<==>",$desc) as $k){
+			$temp = explode(':',$k);
+			$itemName = $temp[0]; 
+			$amount = $temp[1]; 
+			if($sent == ""){
+				$sent = $itemName.' '.$amount; 
+			}
+			else{
+				$sent = $sent.', '.$itemName.' '.$amount;
+			}
+		}
+		return $sent;
+	}
+	public function generateCompHtml(){
+		$logs = completeShipment::where('sorted',1)->orderBy('id','DESC')->get(); 
+    $number= count($logs);
+    $list ="";
+    foreach($logs as $log){
+      $carbonized = new Carbon($log->created_at);
+			$humanized = $carbonized->format('l\\, jS \\of F Y');
+			$items = $this->stringifyB($log->description);
+			$diff = $log->expected_amount - $log->received_amount;
+      $list = $list."<p style='border:solid 1px #ccc; font-size:small;padding:10px;border-radius:10px;'>
+            <span><b>#$log->id</b></span>
+							$items
+							<br/>
+            <small style='color:darkgreen'>Expected: <b>$log->expected_amount</b></small><br/>
+            <small style='color:mediumseagreen'>Received: <b>$log->received_amount</b></small><br/>
+            <small style='color:darkgoldenrod'>Difference: <b>$diff</b></small><br/>
+            <small style='color:darkred'><b>$humanized</b></small>
+          </p>";
+    }
+    $admin = Session::get('admin-auth');
+    $body = "
+      <div style='margin:0px'> 
+        <div style='width:100%; background:#795548;padding:10px 50px; margin:0px !important'> 
+          <br><small style='color:white;font-family:sans-serif;'><b>Downloaded By $admin->name </b></small>
+          <small style='color:white;font-family:sans-serif;'><b>( $number Logs )</b></small>
+          <h1 style='color:white; font-family:sans-serif; margin-top:0px;   text-shadow: 1px 2px 1px black; text-transform:capitalize;'>Completed Shipment Records</h1>
+        </div>
+        <div style='min-height: 500px;padding:10px 30px;line-height:1.5;font-size:medium;font-family: sans-serif'>
+          <h3><center>ADMIN LOG SHEET</center></h3>
+          $list
+        </div>
+      </div>
+    ";
+    return $body; 
+  }
+	public function generateLogsHtml($whichLog){
+		if($whichLog =="kitchen"){
+			$logs = KitchenShipment::orderBy('id','DESC')->get(); 
+		}
+		else{
+			$logs = CenterShipment::orderBy('id','DESC')->get(); 
+		}
+    $number= count($logs);
+    $list ="";
+    foreach($logs as $log){
+      $carbonized = new Carbon($log->created_at);
+			$humanized = $carbonized->format('l\\, jS \\of F Y');
+			$items = $this->stringify($log->description);
+      $list = $list."<p style='border:solid 1px #ccc; font-size:small;padding:10px;border-radius:10px;'>
+            <span><b>#$log->id</b></span>
+							$items
+            <small style='color:darkred'><b>$humanized</b></small>
+          </p>";
+    }
+    $admin = Session::get('admin-auth');
+    $body = "
+      <div style='margin:0px'> 
+        <div style='width:100%; background:#009688;padding:10px 50px; margin:0px !important'> 
+          <br><small style='color:white;font-family:sans-serif;'><b>Downloaded By $admin->name </b></small>
+          <small style='color:white;font-family:sans-serif;'><b>( $number Logs )</b></small>
+          <h1 style='color:white; font-family:sans-serif; margin-top:0px;   text-shadow: 1px 2px 1px black; text-transform:capitalize;'>$whichLog Records</h1>
+        </div>
+        <div style='min-height: 500px;padding:10px 30px;line-height:1.5;font-size:medium;font-family: sans-serif'>
+          <h3><center>ADMIN LOG SHEET</center></h3>
+          $list
+        </div>
+      </div>
+    ";
+    return $body; 
+  }
+	public function clearWhichDataBase($whichBase){
+		switch ($whichBase) {
+			case 'kitchen':
+				kitchenShipment::truncate(); 
+				return redirect()->back();
+				break;
+			case 'center':
+				CenterShipment::truncate(); 
+				return redirect()->back();
+				break;
+			default:
+				# code...
+				break;
+		}
+}
+	public function goToDocumentHistoryPage(){
+		if(!Session::has('admin-auth')){
+			return redirect('/admin');
+		}
+		$k = KitchenShipment::count();
+		$c = CenterShipment::count(); 
+		$comp = CompleteShipment::where('sorted',1)->count();
+		return view('admin.document',compact('k','c','comp'));
+	}
+	public function getForAcc(){
+		return CompleteShipment::where('sorted',0)->get();
+	}
+	public function getAccountant(){
+		$acc = Accountant::where('id',Session::get('acc-auth')->id)->first(); 
+		return $acc;
+	}
+	public function getManager(){
+		$m = Session::get('manager-auth');
+		if($m){
+			$manager = Manager::where('id',$m->id)->with('center')->first(); 
+			return $manager;
+		}
+	}
+	public function forwardToAccountants(Request $request){
+		$not = ShipmentNotification::where('id',$request->not_id)->first();
+		$n = new CompleteShipment(); 
+		$n->description = $request->desc; 
+		$n->shipment_notification_id = $request->not_id;
+		$n->expected_amount = $request->expected_amount; 
+		$n->title = $not->title;
+		$n->save();
+		$not->update(['sorted'=>1]);
+		return "true";
+	}
 	public function getShipmentForManagement(){
 		return ShipmentNotification::where(['center_id'=>Session::get('manager-auth')->center_id,'center_sorted'=>1,'sorted'=>0])->with('kitchenShipment','centerShipment')->get();
 	}
@@ -34,6 +197,12 @@ class AppController extends Controller
 				break;
 			case 'kitchen':
 				Session::forget('cook-auth');
+				break;
+			case 'accounting':
+				Session::forget('acc-auth');
+				break;
+			case 'management':
+				Session::forget('manager-auth');
 				break;
 			
 			default:
@@ -54,7 +223,7 @@ class AppController extends Controller
 			return view('cashiers.home');
 		}
 		else{
-			$found = Manager::where('name',$name)->first(); 
+			$found = Accountant::where('name',$name)->first(); 
 			if($found){
 				Session::put('acc-auth',$found); 
 				Session::forget('temp-acc-det');
@@ -181,7 +350,7 @@ class AppController extends Controller
 			default:
 				break;
 		}
-	}
+	} 
 
 	
 	public function loginMech($model,$name,$password,$success_route,$fail_route,$section_name){

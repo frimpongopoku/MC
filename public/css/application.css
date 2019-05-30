@@ -1,3 +1,95 @@
+@media only screen and (max-width: 600px){
+  .mobile-vanish-key{
+    display:none;
+  }
+  .phone-m-zero{
+    margin:0px !important;
+  }
+  .phone-p-zero{
+    padding:0px !important;
+  }
+  .main-fix{
+    margin-left:30px !important;
+  }
+}
+@media only screen and (min-width: 600px){
+  .pc-vanish-key{
+    display:none;
+  }
+}
+#show-button{
+  border-radius: 0px;
+  position:fixed; 
+  top:30px; 
+  left:0px; 
+  border-top-right-radius: 20px; 
+  border-bottom-right-radius: 20px;
+  padding:10px;
+  z-index: 500;
+}
+.my-h5{
+  font-size:1.725rem;
+}
+.input-s{
+  font-size:1.54rem !important;
+
+}
+.raise-hover:hover{
+  box-shadow:0 5px 11px 0 rgba(0,0,0,.18),0 4px 15px 0 rgba(0,0,0,.15);
+  transition: .3s ease-in-out all;
+}
+.center-thumb{
+  padding:50px !important;
+  cursor: pointer;
+  background:gainsboro;
+}
+.cook-thumb{
+  padding:40px;
+  cursor: pointer;
+  background:#f1d49f;
+}
+.cook-thumb:hover{
+  /* margin-bottom:20px; */
+  box-shadow:0 5px 11px 0 rgba(0,0,0,.18),0 4px 15px 0 rgba(0,0,0,.15);
+  transition: .3s ease-in-out all;
+}
+
+.t-hover{
+  padding:30px !important;
+  cursor:pointer;
+}
+.t-hover:hover{
+  box-shadow:0 5px 11px 0 rgba(0,0,0,.18),0 4px 15px 0 rgba(0,0,0,.15);
+  transition: .3s ease-in-out all;
+}
+.small-logout{
+  padding:10px; 
+  border-radius: 100%; 
+  border:solid 2px #ccc;
+  width:50px; 
+  height:50px;
+  display:inline-block;
+  margin-left:10px;
+  cursor:pointer; 
+}
+.phone-menu-circles{
+  padding:10px; 
+  border-radius: 100%; 
+  border:solid 2px #ccc;
+  width:85px; 
+  height:85px;
+  display:inline-block;
+  margin-left:10px;
+  cursor:pointer; 
+}
+.phone-menu-circles:hover{
+  background:orange; 
+  transition: .3s ease-out all;
+}
+.small-logout:hover{
+  background:orange; 
+  transition: .3s ease-out all;
+}
 .inline{
   display:inline-block;
 }
@@ -21,11 +113,10 @@
 }
 
 .added-item{
-  background:yellow; 
+  background:bisque; 
   color:black; 
   font-weight: 700;
   cursor:pointer;
-  border-radius:10px !important;
   padding-left:30px !important;
   padding-bottom:0px !important;
 }

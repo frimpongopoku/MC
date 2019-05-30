@@ -1,5 +1,5 @@
 @extends('navs.app')
-@section('title')
+@section('custom-title')
 
 @endsection 
 

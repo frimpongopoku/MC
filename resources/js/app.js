@@ -15,4 +15,5 @@ require('./bootstrap');
 require('./components/cooks/cooks');
 require('./components/center/center');
 require('./components/manager/manager');
+require('./components/acc/acc');
 

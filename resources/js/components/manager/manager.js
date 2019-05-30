@@ -9,6 +9,7 @@ export default class Manager extends Component {
     this.streamEdits = this.streamEdits.bind(this);
     this.deleteFrom = this.deleteFrom.bind(this);
     this.state = {
+      manager:null,
       itemInFocusID:null,
       availableForReview:[],
       inFocus:null,
@@ -19,6 +20,7 @@ export default class Manager extends Component {
   }
   componentDidMount() {
     this.getManagerShipment();
+    this.getManager();
   }
  
   deconstructDesc(description){
@@ -38,7 +40,7 @@ export default class Manager extends Component {
     let thisClass = this;
     $.ajax({method:'get',url:'/get/shipment-for-management'})
     .done(function(response){
-     thisClass.setState({availableForReview:response})
+      thisClass.setState({availableForReview:response});
     })
   }
   genPairs(kitchen,center){
@@ -67,7 +69,7 @@ export default class Manager extends Component {
   ejectForReview(){
     return this.state.availableForReview.map((item,index)=>{
       return(
-        <div  key={index} className="thumbnail clearfix" style={{padding:20,paddingBottom:5}}> 
+        <div  key={index} className="thumbnail clearfix" style={{cursor:'pointer',padding:20,paddingBottom:5,background:'antiquewhite'}}> 
           <button onClick={()=>{
             var f = this.fashionForFocus(item);
             this.setState({
@@ -106,7 +108,6 @@ export default class Manager extends Component {
   listComparison(){
 
     if(this.state.inFocus !==null){
-      
       return this.state.focusPairs.map((item,index)=>{
         if(item.numbers_match){
           return(
@@ -125,7 +126,6 @@ export default class Manager extends Component {
           );
         }
         else{
-          
           return(
             <div key={index} className="comparison clearfix">
               <div className="thumbnail" style={{display:'inline-block',paddingBottom:5}}>
@@ -147,7 +147,7 @@ export default class Manager extends Component {
     }
   }
 
-  compressArraysForDb(obj){ 
+  compressArraysForDb(obj){ //expects an obj of { kitchen:[names][prices][amounts],center:[names][amounts][prices]}
     let k = obj.kitchen; 
     let c = obj.center ; 
     let k_s = ""; 
@@ -171,31 +171,7 @@ export default class Manager extends Component {
 
     return {kitchenString:k_s, centerString:c_s};
   }
-  reconstruct(){
-    let kitchen = this.refs.kitchen_edit.value; 
-    let center = this.refs.center_edit.value; 
-    let k_names =[]; 
-    let k_amounts = []; 
-    let k_prices = [];
-    let c_names = []; 
-    let c_amounts = [];
-    let c_prices = [];
-    let karr = kitchen.split(',');  
-    let carr = center.split(',');
-    karr.forEach((item)=>{
-      let t = item.split(':'); 
-      k_names.push(t[0]);
-      k_amounts.push(t[1]);
-      k_prices.push(t[2])
-    })
-    carr.forEach((item)=>{
-      let t = item.split(':'); 
-      c_names.push(t[0]);
-      c_amounts.push(t[1]);
-      c_prices.push(t[2]);
-    })
-    return {k:{names:k_names,amount:k_amounts,prices:k_prices},c:{names:c_names,amount:c_amounts,prices:c_prices}};
-  }
+ 
 
   submitEdits(){
     let set = this.compressArraysForDb(this.state.editable);
@@ -212,6 +188,22 @@ export default class Manager extends Component {
       window.location = "/centers/manager/home";
     })
   }
+  sendToAccountant(values){
+    var thisClass = this;
+    $.ajax({
+      method:'get',
+      url:'/manager/forward-to-acc', 
+      data:{
+        desc:values.item_string,
+        expected_amount:values.expected_amount, 
+        not_id:thisClass.state.itemInFocusID
+      }
+    })
+    .done(function(res){
+      thisClass.getManagerShipment();
+      thisClass.setState({inFocus:null});
+    })
+  }
   verify(){
     var status = true;
     if(this.state.inFocus !==null){
@@ -223,10 +215,11 @@ export default class Manager extends Component {
         }
       }
       if(status){
-        alert("Everything is cool!")
+        var values = this.mapItemToExpectedPrice();
+        this.sendToAccountant(values);
       }
       else{
-        alert("You cannot seal this shipment, there discrepancies");
+        alert("You cannot seal this shipment, there are discrepancies");
       }
     }
     else{
@@ -269,14 +262,67 @@ export default class Manager extends Component {
   streamEdits(newEditable){
     this.setState({editable:newEditable})
   }
+  
+  sum(arr){//arr = array of numbers
+    var val = 0; 
+    arr.forEach(num=>{
+      val = val +Number(num);
+    }); 
+    return val;
+  }
+  itemToTotal(arr){//expects arr = {names[],prices[],items[]}
+    var names = [];
+    var totals =[];
+    arr.names.forEach((item,index)=>{
+      let amount = Number(arr.amount[index]); 
+      let price = Number(arr.prices[index]); 
+      let total = amount *price;
+      names.push(item); 
+      totals.push(total);
+    })
+    return {names:names,prices:arr.prices,totals:totals,expected:this.sum(totals)}; 
+  }
+  shrinkItemsWithTotals(obj){ //obj  = {names:[],totals:[total amount of money expected from each item]}
+    var string = ""; 
+    obj.names.forEach((item,index)=>{
+      if(string ===""){
+        string = item+":"+obj.prices[index]+":"+obj.totals[index].toString();
+      }
+      else{
+        string = string+','+item+":"+obj.prices[index]+":"+obj.totals[index].toString();
+      }
+    })
+    return string;
+  }
+  mapItemToExpectedPrice(){ //returns a compressed string from 'inFocus'
+    var ready = this.state.inFocus; 
+    var toTotal =this.itemToTotal(ready.kitchen);
+    var expectedValues = this.shrinkItemsWithTotals({names:toTotal.names,prices:toTotal.prices,totals:toTotal.totals});
+    return {item_string:expectedValues,expected_amount:toTotal.expected};
+  }
+  getManager(){
+    var thisClass = this;
+    $.ajax({method:'get',url:'/get/manager'})
+    .done(function(res){
+      thisClass.setState({manager:res})
+    })
+  }
   render() {
     return (
       <div>
-        <h3>The items in the list below will help you compare the number of food stuff that were counted by the kitchen staff, and the values counted in your center</h3>
-        <div className="thumbnail clearfix" style={{minHeight:270,maxHeight:450,overflowY:'scroll',padding:25,paddingBottom:10}}> 
+        <h3 style={{padding:17}}>The items in the list below will help you compare the number of food stuff that were counted by the kitchen staff, and the values counted in your center</h3>
+        <p style={{padding:"1px 17px"}}>
+          <b>{this.state.manager !==null?this.state.manager.name:'...'}</b> 
+          you manage all shipments from 
+          <span style={{border:'solid 2px #ccc', padding:'5px 15px',borderRadius:55}}>
+          {this.state.manager !==null ? this.state.manager.center.name: '...'}
+          </span>
+          <h5 onClick={()=>{window.location = "/management/logout"}}style={{cursor:'pointer',border:'solid 2px #ccc',padding:"10px 13px",margin:6,borderRadius:"100%",textAlign:'center',display:'inline-block'}}><span className="fa fa-sign-out"></span></h5>
+        </p>
+        <div className="thumbnail raise-hover clearfix" style={{background:'burlywood',minHeight:270,maxHeight:450,overflowY:'scroll',padding:25,paddingBottom:10}}> 
            {this.ejectForReview()}
         </div>
-        <div className="thumbnail clearfix" style={{padding:25,paddingBottom:10}}> 
+        <div className="thumbnail raise-hover clearfix" style={{padding:25,paddingBottom:10}}>
           <center>
             <h3>Kitchen <span style={{border:'solid 2px #ccc',width:'100px'}} className="inline"></span> Center </h3>
            {this.listComparison()} 
@@ -315,6 +361,7 @@ export default class Manager extends Component {
                 <div className="modal-footer">
                   <button className="btn btn-danger" data-dismiss="modal">Come back later</button>
                   <button className="btn btn-primary" onClick={()=>{this.submitEdits()}}>Fix</button>
+                  <button className="btn btn-primary" onClick={()=>{console.log(this.state)}}>Fix2</button>
                 </div>
               </div>
             </div>

@@ -3,16 +3,8 @@
 @section('content') 
   <div class="container"> 
     <div class="col-md-6 col-lg-6 col-sm-6 col-xs-12 offset-md-3" style="padding-top:5vh;">
-      <center> 
-        <div class="circle"> 
-            
-        </div>
-      </center>
-      <center>
-        <div class="triangle"> 
-        </div>
-      </center>
-      <div class="thumbnail clearfix" style="padding:40px;margin-top:0px !important">
+    
+      <div class="thumbnail  raise-hover clearfix" style="cursor:pointer;background:burlywood;border:solid 4px #d8cccc;padding:40px;margin-top:20vh !important">
         <form action ="/do-authentication" method="post">
         <h5>MANAGEMENT</h5>
           {{csrf_field()}}
@@ -20,7 +12,7 @@
           <input placeholder="username" type="name" name="manager" class="form-control little-margin" /> 
           <label>Password for your center</label>
           <input type="hidden" name="section" value="management" />
-          <input type="password" name="password" class="form-control" style="font-size:40px;"/> 
+          <input type="password" name="password" class="form-control" style="font-size:20px;"/> 
           <button  class="btn btn-success  float-right little-margin">Go</button>
         </form>
        

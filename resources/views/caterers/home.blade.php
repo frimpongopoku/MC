@@ -1,24 +1,37 @@
 @extends('navs.app')
 @section('custom-title')
-  Kitchen {something}
+  Kitchen 
 @endsection 
 
 @section('custom-style')
+  <style> 
+    
+  </style>
 @endsection
 @section('content')
-  <div class="col-md-10 col-lg-10 col-sm-10 col-xs-12 offset-md-1" style="padding:30px;"> 
-    <div onclick ="swap('history-area','creation-area','history-button','create-button')"id="create-button" class="circle s-round-btn s-btn-active" style="height:100px; width:100px;position:absolute"> 
-      <center><h1 class=""><i class="fa fa-pencil" style="margin-top:9px;"></i></h1> </center> 
+  <div class="phone-m-zero phone-p-zero col-md-10 col-lg-10 col-sm-10 col-xs-12 offset-md-1" style="padding:30px;"> 
+    
+    <div class="mobile-vanish-key pc-appearance-key">
+      <div onclick ="swap('history-area','creation-area','history-button','create-button')"id="create-button" class="circle s-round-btn s-btn-active" style="height:100px; width:100px;position:absolute"> 
+        <center><h1 class=""><i class="fa fa-pencil" style="margin-top:9px;"></i></h1> </center> 
+      </div>
+        <div onclick ="swap('creation-area','history-area','create-button','history-button')" id="history-button" class="circle s-round-btn" style="height:100px; width:100px;position:absolute; top:22vh;"> 
+            <center><h1><i class="fa fa-history" style="margin-top:9px;"></i></h1> </center>
+        </div>
+        <div onclick ="window.location='/kitchen/logout'" id="history-button" class="circle s-round-btn" style="height:100px; width:100px;position:absolute; top:39vh;"> 
+            <center><h1><i class="fa fa-sign-out" style="margin-top:9px;"></i></h1> </center>
+        </div>
     </div>
-      <div onclick ="swap('creation-area','history-area','create-button','history-button')" id="history-button" class="circle s-round-btn" style="height:100px; width:100px;position:absolute; top:22vh;"> 
-          <center><h1><i class="fa fa-history" style="margin-top:9px;"></i></h1> </center>
+      <div style="padding:20px;" class="pc-vanish-key">
+        <center>
+          <small id="create-button" onclick ="swap('history-area','creation-area','history-button','create-button')" class="phone-menu-circles"><i class="fa fa-pencil" style="font-size:50px"></i></small> 
+          <small id="history-button" onclick ="swap('creation-area','history-area','create-button','history-button')"class="phone-menu-circles"><i class="fa fa-history" style="font-size:50px;margin-top:4px;"></i></small> 
+          <small onclick ="window.location='/kitchen/logout'" class="phone-menu-circles"><i class="fa fa-sign-out" style="font-size:50px"></i></small> 
+        </center>
       </div>
-      <div onclick ="window.location='/kitchen/logout'" id="history-button" class="circle s-round-btn" style="height:100px; width:100px;position:absolute; top:39vh;"> 
-          <center><h1><i class="fa fa-sign-out" style="margin-top:9px;"></i></h1> </center>
-      </div>
-      <div class="components">
+      <div class="components phone-m-zero ">
         @if($last_ship)
-          <p class="alert alert-info">Last items were sent {{$last_ship_dest->name}} {{$last_ship->created_at->diffForHumans()}}
+          <p style="margin:10px;"class="alert alert-info">Last items were sent {{$last_ship_dest->name}} {{$last_ship->created_at->diffForHumans()}}
         @endif
         <div id="creation-area">
          <div id="cooks-react-div"></div>

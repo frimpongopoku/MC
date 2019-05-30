@@ -10,7 +10,7 @@
         <div class="triangle"> 
         </div>
       </center>
-      <div class="thumbnail clearfix" style="padding:40px;margin-top:0px !important">
+      <div class="thumbnail t-hover clearfix" style="background:gainsboro; border:solid 4px #DEE;padding:40px;margin-top:0px !important">
         <form action ="/do-authentication" method="post">
           {{csrf_field()}}
           <label>Choose which center you would like to get into</label>
@@ -20,7 +20,7 @@
            @endforeach
           </select>
           <label>Password for your center</label>
-          <input type="password" name="password" class="form-control" style="font-size:40px;"/> 
+          <input type="password" name="password" class="form-control" style="font-size:20px;"/> 
           <input type="hidden" name="section" value="center"/> 
           <button  class="btn btn-success  float-right little-margin">Go</button>
         </form>

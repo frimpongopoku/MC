@@ -61541,6 +61541,8 @@ __webpack_require__(/*! ./components/center/center */ "./resources/js/components
 
 __webpack_require__(/*! ./components/manager/manager */ "./resources/js/components/manager/manager.js");
 
+__webpack_require__(/*! ./components/acc/acc */ "./resources/js/components/acc/acc.js");
+
 /***/ }),
 
 /***/ "./resources/js/bootstrap.js":
@@ -61598,6 +61600,507 @@ if (token) {
 //     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
 //     encrypted: true
 // });
+
+/***/ }),
+
+/***/ "./resources/js/components/acc/acc.js":
+/*!********************************************!*\
+  !*** ./resources/js/components/acc/acc.js ***!
+  \********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Accountant; });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var react_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-dom */ "./node_modules/react-dom/index.js");
+/* harmony import */ var react_dom__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react_dom__WEBPACK_IMPORTED_MODULE_1__);
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+
+
+
+var Accountant =
+/*#__PURE__*/
+function (_Component) {
+  _inherits(Accountant, _Component);
+
+  function Accountant(props) {
+    var _this;
+
+    _classCallCheck(this, Accountant);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(Accountant).call(this, props));
+    _this.state = {
+      accountant: null,
+      allShipments: null,
+      inFocus: null,
+      editable: null,
+      earnings: 0,
+      remainder: null
+    };
+    return _this;
+  }
+
+  _createClass(Accountant, [{
+    key: "getCompleteShipments",
+    value: function getCompleteShipments() {
+      var thisClass = this;
+      $.ajax({
+        method: 'get',
+        url: '/acc/get-orders'
+      }).done(function (response) {
+        console.log(response);
+        thisClass.setState({
+          allShipments: response
+        });
+      });
+    }
+  }, {
+    key: "getAcc",
+    value: function getAcc() {
+      var thisClass = this;
+      $.ajax({
+        method: 'get',
+        url: '/get/acc'
+      }).done(function (response) {
+        thisClass.setState({
+          accountant: response
+        });
+      });
+    }
+  }, {
+    key: "componentDidMount",
+    value: function componentDidMount() {
+      this.getAcc();
+      this.getCompleteShipments();
+    }
+  }, {
+    key: "reconstruct",
+    value: function reconstruct() {
+      var e = this.state.editable;
+      var string = "";
+      e.names.forEach(function (item, index) {
+        if (string === "") {
+          string = item + ":" + e.prices[index] + ":" + e.totals[index];
+        } else {
+          string = string + "," + item + ":" + e.prices[index] + ":" + e.totals[index];
+        }
+      });
+      return string;
+    }
+  }, {
+    key: "cleanUp",
+    value: function cleanUp() {
+      this.setState({
+        editable: null,
+        inFocus: null,
+        earnings: '',
+        remainder: null
+      });
+    }
+  }, {
+    key: "deconstruct",
+    value: function deconstruct(description) {
+      //expects a string of compressed kitchen items like (cake:10:409,pie:43:4555)[item:price:price x howmany]
+      var itemsArr = description.split(',');
+      var names = [],
+          prices = [],
+          totals = [],
+          amount = [];
+      itemsArr.forEach(function (item, index) {
+        var arr = item.split(':');
+        names.push(arr[0]);
+        prices.push(arr[1]);
+        totals.push(arr[2]);
+        amount.push(Number(arr[2]) / Number(arr[1]));
+      });
+      return {
+        names: names,
+        prices: prices,
+        totals: totals,
+        amount: amount
+      };
+    }
+  }, {
+    key: "ejectForReview",
+    value: function ejectForReview() {
+      var _this2 = this;
+
+      if (this.state.allShipments !== null) {
+        var ship = this.state.allShipments;
+
+        if (ship.length !== 0) {
+          return ship.map(function (item, index) {
+            return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+              key: index,
+              className: "thumbnail raise-hover clearfix",
+              style: {
+                borderColor: 'darkgoldenrod',
+                cursor: 'pointer',
+                color: 'white'
+              }
+            }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
+              onClick: function onClick() {
+                _this2.review(item);
+              },
+              className: "btn btn-success btn-sm float-right"
+            }, "Review"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("small", {
+              className: " text text-success"
+            }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("b", null, "Expecting: ", item.expected_amount, " KES")), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h5", null, item.title));
+          });
+        } else {
+          return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+            className: "thumbnail raise-hover",
+            style: {
+              borderColor: 'darkgoldenrod',
+              cursor: 'pointer',
+              color: 'white'
+            }
+          }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h3", null, "No shipments have been completed yet!"));
+        }
+      }
+    }
+  }, {
+    key: "ejectExpectedSituation",
+    value: function ejectExpectedSituation() {
+      var _this3 = this;
+
+      if (this.state.inFocus !== null) {
+        return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+          className: "thumbnail"
+        }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h5", null, "Hi Mr Accountant, if the amount of money you have now matches the expected amount,", react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("br", null), "please click the button below to finish", react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("br", null), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("br", null), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
+          onClick: function onClick() {
+            _this3.metExpectations();
+          },
+          className: "btn btn-primary"
+        }, "We Met Expectations")));
+      }
+    }
+  }, {
+    key: "ejectNames",
+    value: function ejectNames() {
+      var _this4 = this;
+
+      if (this.state.editable !== null) {
+        return this.state.editable.names.map(function (item, index) {
+          return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("option", {
+            key: index
+          }, item, " - ", _this4.state.editable.amount[index]);
+        });
+      }
+    }
+  }, {
+    key: "reset",
+    value: function reset() {
+      var e = this.deconstruct(this.state.inFocus.description);
+      this.refs.number.value = 0;
+      this.setState({
+        editable: e,
+        earnings: 0,
+        remainder: null
+      });
+    }
+  }, {
+    key: "ejectLossSituation",
+    value: function ejectLossSituation() {
+      var _this5 = this;
+
+      if (this.state.inFocus !== null) {
+        return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h5", null, "If the amount you have does not match what is expected,", react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("br", null), "please take sometime to indicate how many of which items were left over"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("hr", null), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("small", null, "Item - ( quantity from kitchen )"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("select", {
+          ref: "item_name",
+          className: "form-control",
+          style: {
+            width: '50%'
+          }
+        }, this.ejectNames()), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("small", null, "How many remaining?"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("form", {
+          onSubmit: function onSubmit() {
+            _this5.addLoss();
+          }
+        }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
+          ref: "number",
+          type: "number",
+          placeholder: "Eg. 3",
+          className: "form-control",
+          style: {
+            width: '30%'
+          }
+        }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
+          onClick: function onClick(e) {
+            e.preventDefault();
+
+            _this5.addLoss();
+          },
+          className: "btn btn-success little-margin"
+        }, "Record"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
+          onClick: function onClick(e) {
+            e.preventDefault();
+
+            _this5.reset();
+          },
+          className: "btn btn-danger little-margin"
+        }, "Start Again")), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("small", {
+          className: "text text-secondary"
+        }, this.stringForRemainders(), " left unsold"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("br", null), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("br", null), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h3", {
+          className: "text text-danger"
+        }, this.state.earnings !== 0 ? this.state.earnings.toString() + " KES " : 'Final = ' + this.state.inFocus.expected_amount), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
+          onClick: function onClick() {
+            if (_this5.state.earnings !== 0) {
+              _this5.didntMeetExpectations();
+            } else {
+              alert("If the amount you have equals " + _this5.state.inFocus.expected_amount + ", please use the 'we met expectations button'");
+            }
+          },
+          className: "btn btn-primary "
+        }, "Finish"));
+      } else {
+        return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("center", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h3", null, "You havent chosen any shipment for review yet!"));
+      }
+    }
+  }, {
+    key: "ejectSummary",
+    value: function ejectSummary() {
+      if (this.state.inFocus !== null) {
+        return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h4", null, this.state.inFocus.title), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h3", {
+          className: "text text-success"
+        }, "Expecting ", this.state.inFocus.expected_amount, " KES"));
+      }
+    }
+  }, {
+    key: "review",
+    value: function review(item) {
+      var dec = this.deconstruct(item.description);
+      this.setState({
+        inFocus: item,
+        editable: dec
+      });
+    }
+  }, {
+    key: "getItemStream",
+    value: function getItemStream(name) {
+      //expects a string --which ( name of an item like, cake, or pie)
+      var price, total, amount, i;
+      var e = this.state.editable;
+      e.names.forEach(function (el, index) {
+        if (name === el) {
+          price = e.prices[index];
+          total = e.totals[index];
+          amount = e.amount[index];
+          i = index;
+        }
+      });
+      return {
+        name: name,
+        price: price,
+        total: total,
+        amount: amount,
+        index: i
+      };
+    }
+  }, {
+    key: "sum",
+    value: function sum(arr) {
+      //arr = array of numbers
+      var val = 0;
+      arr.forEach(function (num) {
+        val = val + Number(num);
+      });
+      return val;
+    }
+  }, {
+    key: "putMeBackInTheSquad",
+    value: function putMeBackInTheSquad(train, index) {
+      var e = this.state.editable;
+      e.names.splice(index, 1, train.name);
+      e.amount.splice(index, 1, train.amount);
+      e.totals.splice(index, 1, train.total);
+      this.setState({
+        editable: e,
+        earnings: this.sum(e.totals)
+      });
+    }
+  }, {
+    key: "addLoss",
+    value: function addLoss() {
+      var name = this.refs.item_name.value.split('-')[0].trim();
+      var how_many = Number(this.refs.number.value);
+
+      if (how_many) {
+        var stream = this.getItemStream(name);
+        var loss = how_many * Number(stream.price);
+        var new_amount = Number(stream.total) - loss;
+        var new_quantity = Number(stream.amount) - how_many;
+        var new_stream = {
+          name: name,
+          amount: new_quantity,
+          total: new_amount
+        };
+        this.addToRemainderList(name, how_many);
+        this.putMeBackInTheSquad(new_stream, stream.index);
+      } else {
+        alert("How many items were left? ");
+      }
+    }
+  }, {
+    key: "ifExistsIndex",
+    value: function ifExistsIndex(item, arr) {
+      var index = arr.findIndex(function (a) {
+        return a === item;
+      });
+      return index;
+    }
+  }, {
+    key: "addToRemainderList",
+    value: function addToRemainderList(name, quantity) {
+      var names = [],
+          qs = [],
+          ind;
+      var rem = this.state.remainder;
+
+      if (rem !== null) {
+        //first time
+        ind = this.ifExistsIndex(name, rem.names);
+
+        if (ind !== -1) {
+          //item is already in there
+          var new_rem = Number(rem.remainder[ind]) + Number(quantity);
+          rem.remainder.splice(ind, 1, new_rem);
+          this.setState({
+            remainder: rem
+          });
+        } else {
+          rem.names.push(name);
+          rem.remainder.push(quantity);
+          this.setState({
+            remainder: rem
+          });
+        }
+      } else {
+        names.push(name);
+        qs.push(quantity);
+        this.setState({
+          remainder: {
+            names: names,
+            remainder: qs
+          }
+        });
+      }
+    }
+  }, {
+    key: "stringForRemainders",
+    value: function stringForRemainders() {
+      var string = "";
+
+      if (this.state.remainder !== null) {
+        var rem = this.state.remainder;
+        rem.names.forEach(function (item, i) {
+          var n = rem.remainder[i].toString();
+          var s = n !== '1' ? 's' : '';
+
+          if (string === "") {
+            string = n + " " + item + s;
+          } else {
+            string = string + " ," + n + " " + item + s;
+          }
+        });
+      }
+
+      return string;
+    }
+  }, {
+    key: "didntMeetExpectations",
+    value: function didntMeetExpectations() {
+      var thisClass = this;
+      $.ajax({
+        method: 'get',
+        url: '/didnt-meet/expectations',
+        data: {
+          id: this.state.inFocus.id,
+          received_amount: this.state.earnings,
+          received_description: this.reconstruct()
+        }
+      }).done(function (res) {
+        thisClass.getCompleteShipments();
+        thisClass.cleanUp();
+      });
+    }
+  }, {
+    key: "metExpectations",
+    value: function metExpectations() {
+      var thisClass = this;
+      $.ajax({
+        method: 'get',
+        url: '/met/expectations',
+        data: {
+          id: this.state.inFocus.id
+        }
+      }).done(function (res) {
+        thisClass.getCompleteShipments();
+        thisClass.cleanUp();
+      });
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+        className: "clearfix"
+      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h1", {
+        style: {
+          display: 'inline-block',
+          padding: 15
+        }
+      }, this.state.accountant !== null ? this.state.accountant.name : '...'), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+        className: "small-logout",
+        onClick: function onClick() {
+          window.location = "/accounting/logout";
+        }
+      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("center", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("i", {
+        className: "fa fa-sign-out",
+        style: {
+          fontSize: '25px'
+        }
+      })))), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+        className: "thumbnail",
+        style: {
+          background: 'darkgoldenrod',
+          minHeight: 300,
+          maxHeight: 400,
+          overflowY: 'scroll'
+        }
+      }, this.ejectForReview()), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+        className: "thumbnail"
+      }, this.ejectSummary(), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, this.ejectExpectedSituation()), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+        className: "thumbnail clearfix"
+      }, this.ejectLossSituation())));
+    }
+  }]);
+
+  return Accountant;
+}(react__WEBPACK_IMPORTED_MODULE_0__["Component"]);
+
+
+
+if (document.getElementById('react-acc-div')) {
+  react_dom__WEBPACK_IMPORTED_MODULE_1___default.a.render(react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(Accountant, null), document.getElementById('react-acc-div'));
+}
 
 /***/ }),
 
@@ -61674,18 +62177,16 @@ function (_Component) {
       var _this = this;
 
       return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-        className: "thumbnail clearfix",
-        style: {
-          padding: '50px',
-          paddingBottom: '10px'
-        }
-      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h5", null, "Add all the items and the amount here"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("br", null), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", null, "Choose Food Item"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("select", {
+        className: "thumbnail center-thumb raise-hover clearfix"
+      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h5", {
+        className: "my-h5"
+      }, "Add all the items and the amount here"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("br", null), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", null, "Choose Food Item"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("select", {
         ref: "item",
-        className: "form-control",
+        className: "form-control input-s",
         id: "item-select"
       }, this.ejectPastries()), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", null, "How many?"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
         ref: "q",
-        className: "form-control",
+        className: "form-control input-s",
         type: "number",
         id: "quantity",
         placeholder: "number"
@@ -61790,10 +62291,7 @@ function (_Component) {
 
       if (this.props.shipments.length !== 0) {
         return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-          className: "thumbnail clearfix",
-          style: {
-            padding: '30px'
-          }
+          className: "thumbnail center-thumb raise-hover clearfix"
         }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h5", null, "Items You have added "), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
           id: "item-list"
         }, this.ejectItems()), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("hr", null), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", null, "Which shipment did you count the above items from?"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("select", {
@@ -62217,18 +62715,19 @@ function (_Component) {
       var _this = this;
 
       return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-        className: "thumbnail clearfix",
+        className: "thumbnail cook-thumb clearfix",
         style: {
-          padding: '50px',
-          paddingBottom: '10px'
+          padding: '50px'
         }
-      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h5", null, "Add all the food items to be shipped here"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("br", null), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", null, "Choose Food Item"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("select", {
+      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h5", {
+        "class": "my-h5"
+      }, "Add all the food items to be shipped here"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("br", null), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", null, "Choose Food Item"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("select", {
         ref: "item",
-        className: "form-control",
+        className: "form-control input-s",
         id: "item-select"
       }, this.ejectPastries()), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", null, "How many?"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
         ref: "q",
-        className: "form-control",
+        className: "form-control input-s",
         type: "number",
         id: "quantity",
         placeholder: "number"
@@ -62303,7 +62802,6 @@ function (_Component) {
           key: index,
           className: "thumbnail clearfix  added-item",
           style: {
-            borderRadius: '10px',
             paddingLeft: '30px',
             paddingBottom: '0px'
           }
@@ -62332,14 +62830,16 @@ function (_Component) {
       var _this2 = this;
 
       return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-        className: "thumbnail clearfix",
+        className: "thumbnail  cook-thumb clearfix",
         style: {
           padding: '30px'
         }
-      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h5", null, "Items You have added "), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h5", {
+        "class": ""
+      }, "Items You have added "), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         id: "item-list"
       }, this.ejectItems()), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("hr", null), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", null, "Which center are you taking this shipment to?"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("select", {
-        className: "form-control",
+        className: "form-control ",
         ref: "destination"
       }, this.ejectCenters()), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", {
         className: "text text-info",
@@ -62997,6 +63497,7 @@ function (_Component) {
     _this.streamEdits = _this.streamEdits.bind(_assertThisInitialized(_this));
     _this.deleteFrom = _this.deleteFrom.bind(_assertThisInitialized(_this));
     _this.state = {
+      manager: null,
       itemInFocusID: null,
       availableForReview: [],
       inFocus: null,
@@ -63010,6 +63511,7 @@ function (_Component) {
     key: "componentDidMount",
     value: function componentDidMount() {
       this.getManagerShipment();
+      this.getManager();
     }
   }, {
     key: "deconstructDesc",
@@ -63097,8 +63599,10 @@ function (_Component) {
           key: index,
           className: "thumbnail clearfix",
           style: {
+            cursor: 'pointer',
             padding: 20,
-            paddingBottom: 5
+            paddingBottom: 5,
+            background: 'antiquewhite'
           }
         }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
           onClick: function onClick() {
@@ -63228,6 +63732,7 @@ function (_Component) {
   }, {
     key: "compressArraysForDb",
     value: function compressArraysForDb(obj) {
+      //expects an obj of { kitchen:[names][prices][amounts],center:[names][amounts][prices]}
       var k = obj.kitchen;
       var c = obj.center;
       var k_s = "";
@@ -63252,44 +63757,6 @@ function (_Component) {
       };
     }
   }, {
-    key: "reconstruct",
-    value: function reconstruct() {
-      var kitchen = this.refs.kitchen_edit.value;
-      var center = this.refs.center_edit.value;
-      var k_names = [];
-      var k_amounts = [];
-      var k_prices = [];
-      var c_names = [];
-      var c_amounts = [];
-      var c_prices = [];
-      var karr = kitchen.split(',');
-      var carr = center.split(',');
-      karr.forEach(function (item) {
-        var t = item.split(':');
-        k_names.push(t[0]);
-        k_amounts.push(t[1]);
-        k_prices.push(t[2]);
-      });
-      carr.forEach(function (item) {
-        var t = item.split(':');
-        c_names.push(t[0]);
-        c_amounts.push(t[1]);
-        c_prices.push(t[2]);
-      });
-      return {
-        k: {
-          names: k_names,
-          amount: k_amounts,
-          prices: k_prices
-        },
-        c: {
-          names: c_names,
-          amount: c_amounts,
-          prices: c_prices
-        }
-      };
-    }
-  }, {
     key: "submitEdits",
     value: function submitEdits() {
       var set = this.compressArraysForDb(this.state.editable);
@@ -63303,6 +63770,25 @@ function (_Component) {
         }
       }).done(function (response) {
         window.location = "/centers/manager/home";
+      });
+    }
+  }, {
+    key: "sendToAccountant",
+    value: function sendToAccountant(values) {
+      var thisClass = this;
+      $.ajax({
+        method: 'get',
+        url: '/manager/forward-to-acc',
+        data: {
+          desc: values.item_string,
+          expected_amount: values.expected_amount,
+          not_id: thisClass.state.itemInFocusID
+        }
+      }).done(function (res) {
+        thisClass.getManagerShipment();
+        thisClass.setState({
+          inFocus: null
+        });
       });
     }
   }, {
@@ -63321,9 +63807,10 @@ function (_Component) {
         }
 
         if (status) {
-          alert("Everything is cool!");
+          var values = this.mapItemToExpectedPrice();
+          this.sendToAccountant(values);
         } else {
-          alert("You cannot seal this shipment, there discrepancies");
+          alert("You cannot seal this shipment, there are discrepancies");
         }
       } else {
         alert("You have not selected anything under to be reviewed");
@@ -63392,13 +63879,116 @@ function (_Component) {
       });
     }
   }, {
+    key: "sum",
+    value: function sum(arr) {
+      //arr = array of numbers
+      var val = 0;
+      arr.forEach(function (num) {
+        val = val + Number(num);
+      });
+      return val;
+    }
+  }, {
+    key: "itemToTotal",
+    value: function itemToTotal(arr) {
+      //expects arr = {names[],prices[],items[]}
+      var names = [];
+      var totals = [];
+      arr.names.forEach(function (item, index) {
+        var amount = Number(arr.amount[index]);
+        var price = Number(arr.prices[index]);
+        var total = amount * price;
+        names.push(item);
+        totals.push(total);
+      });
+      return {
+        names: names,
+        prices: arr.prices,
+        totals: totals,
+        expected: this.sum(totals)
+      };
+    }
+  }, {
+    key: "shrinkItemsWithTotals",
+    value: function shrinkItemsWithTotals(obj) {
+      //obj  = {names:[],totals:[total amount of money expected from each item]}
+      var string = "";
+      obj.names.forEach(function (item, index) {
+        if (string === "") {
+          string = item + ":" + obj.prices[index] + ":" + obj.totals[index].toString();
+        } else {
+          string = string + ',' + item + ":" + obj.prices[index] + ":" + obj.totals[index].toString();
+        }
+      });
+      return string;
+    }
+  }, {
+    key: "mapItemToExpectedPrice",
+    value: function mapItemToExpectedPrice() {
+      //returns a compressed string from 'inFocus'
+      var ready = this.state.inFocus;
+      var toTotal = this.itemToTotal(ready.kitchen);
+      var expectedValues = this.shrinkItemsWithTotals({
+        names: toTotal.names,
+        prices: toTotal.prices,
+        totals: toTotal.totals
+      });
+      return {
+        item_string: expectedValues,
+        expected_amount: toTotal.expected
+      };
+    }
+  }, {
+    key: "getManager",
+    value: function getManager() {
+      var thisClass = this;
+      $.ajax({
+        method: 'get',
+        url: '/get/manager'
+      }).done(function (res) {
+        thisClass.setState({
+          manager: res
+        });
+      });
+    }
+  }, {
     key: "render",
     value: function render() {
       var _this3 = this;
 
-      return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h3", null, "The items in the list below will help you compare the number of food stuff that were counted by the kitchen staff, and the values counted in your center"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-        className: "thumbnail clearfix",
+      return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h3", {
         style: {
+          padding: 17
+        }
+      }, "The items in the list below will help you compare the number of food stuff that were counted by the kitchen staff, and the values counted in your center"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("p", {
+        style: {
+          padding: "1px 17px"
+        }
+      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("b", null, this.state.manager !== null ? this.state.manager.name : '...'), "you manage all shipments from", react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("span", {
+        style: {
+          border: 'solid 2px #ccc',
+          padding: '5px 15px',
+          borderRadius: 55
+        }
+      }, this.state.manager !== null ? this.state.manager.center.name : '...'), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h5", {
+        onClick: function onClick() {
+          window.location = "/management/logout";
+        },
+        style: {
+          cursor: 'pointer',
+          border: 'solid 2px #ccc',
+          padding: "10px 13px",
+          margin: 6,
+          borderRadius: "100%",
+          textAlign: 'center',
+          display: 'inline-block'
+        }
+      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("span", {
+        className: "fa fa-sign-out"
+      }))), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+        className: "thumbnail raise-hover clearfix",
+        style: {
+          background: 'burlywood',
           minHeight: 270,
           maxHeight: 450,
           overflowY: 'scroll',
@@ -63406,7 +63996,7 @@ function (_Component) {
           paddingBottom: 10
         }
       }, this.ejectForReview()), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-        className: "thumbnail clearfix",
+        className: "thumbnail raise-hover clearfix",
         style: {
           padding: 25,
           paddingBottom: 10
@@ -63469,7 +64059,12 @@ function (_Component) {
         onClick: function onClick() {
           _this3.submitEdits();
         }
-      }, "Fix"))))));
+      }, "Fix"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
+        className: "btn btn-primary",
+        onClick: function onClick() {
+          console.log(_this3.state);
+        }
+      }, "Fix2"))))));
     }
   }]);
 

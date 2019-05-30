@@ -28,19 +28,22 @@ Route::get('get/pastries','AppController@getPastries');
 Route::get('get/center/shipments','AppController@getCenterShipments');
 Route::get('get/shipment-for-management','AppController@getShipmentForManagement');
 Route::get('/manager/rectify','AppEngineController@rectByManager');
-
-
-
-
-
-
-
-
-
-
-
+Route::get('/manager/forward-to-acc','AppController@forwardToAccountants');
+Route::get('/get/manager','AppController@getManager');
+Route::get('/get/acc','AppController@getAccountant');
+Route::get('/acc/get-orders','AppController@getForAcc');
+Route::get('/met/expectations','AppEngineController@metExpectations');
+Route::get('/didnt-meet/expectations','AppEngineController@didntMeetExpectations');
+Route::get('/admin/statistics','AppEngineController@gotoAdminStats');
+Route::get('/a/b','AppEngineController@fetchShipmentStats');
+Route::get('/admin/document-history','AppController@goToDocumentHistoryPage');
+Route::get('/clear-data/{whichBase}','AppController@clearWhichDataBase');
+Route::get('/download/records/{which}','AppController@downloadShipmentRecords');
+Route::get('/download/complete-shipments','AppController@downloadCompleteShipments');
 Route::get('get/some',function(){
-   return  App\ShipmentNotification::with('kitchenShipment')->first();
+   $m = new App\Http\Controllers\AppEngineController(); 
+   return $m->notifyAdmins(9);
+   
 });
 Route::get('/clear/me',function(){
     Session::forget('center-auth');

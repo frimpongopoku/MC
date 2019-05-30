@@ -23,10 +23,10 @@ export default class Selection extends Component {
   render() {
     return (
       <div>
-        <div className="thumbnail clearfix" style={{padding: '50px', paddingBottom: '10px'}}> 
-          <h5>Add all the food items to be shipped here</h5><br />
+        <div className="thumbnail cook-thumb clearfix" style={{padding: '50px'}}> 
+          <h5 class="my-h5">Add all the food items to be shipped here</h5><br />
           <label>Choose Food Item</label>
-          <select ref="item" className="form-control" id="item-select"> 
+          <select ref="item" className="form-control input-s" id="item-select"> 
            {this.ejectPastries()}
           </select>
           {/* <label> Unit Of Measurement</label>
@@ -35,7 +35,7 @@ export default class Selection extends Component {
             <option>Plates </option>
           </select> */}
           <label>How many?</label>
-          <input ref="q" className="form-control" type="number" id="quantity" placeholder="number" />
+          <input ref="q" className="form-control input-s" type="number" id="quantity" placeholder="number" />
           <button onClick={()=>{this.addItems()}} className="little-margin btn btn-success float-right"><i className="fa fa-plus" /> Add </button>
         </div>
         

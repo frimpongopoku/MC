@@ -23,7 +23,7 @@ export default class CenterView extends Component {
   forwardMech(){
     if(this.props.shipments.length !==0){
       return (
-        <div className="thumbnail clearfix" style={{padding: '30px'}}> 
+        <div className="thumbnail center-thumb raise-hover clearfix"> 
         <h5>Items You have added </h5> 
         <div id="item-list">
             {this.ejectItems()}

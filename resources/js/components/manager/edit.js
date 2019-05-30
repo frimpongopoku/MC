@@ -133,7 +133,7 @@ export default class Edit extends Component {
               {this.ejectCenterItems()}
             </div>
           </div>
-      </div>
+        </div>
       </div>
     )
   }

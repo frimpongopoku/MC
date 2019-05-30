@@ -16,7 +16,7 @@
         <div class="triangle"> 
         </div>
       </center>
-      <div class="thumbnail clearfix" style="padding:40px;margin-top:0px !important">
+      <div class="thumbnail t-hover clearfix" style="border:solid 4px antiquewhite;background:bisque;padding:40px;margin-top:0px !important">
         <form action ="/do-authentication" method="post">
           {{csrf_field()}}
           <label>Choose which kitchen you belong to</label>
@@ -26,7 +26,7 @@
             @endforeach
           </select>
           <label>Password for your group</label>
-          <input type="password" name="password" class="form-control" style="font-size:40px;"/> 
+          <input type="password" name="password" class="form-control" style="font-size:20px;"/> 
           <input type="hidden" name="section" value="kitchen" class="form-control" /> 
           
           <button  class="btn btn-success  float-right little-margin">Go</button>
