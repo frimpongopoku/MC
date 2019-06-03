@@ -56,7 +56,7 @@ class MatchMaker extends Controller
          'amount'=>$value[1]
        ]; 
        foreach ($center as $i => $val) {
-         if($value ==$val){
+         if($value[0] ==$val[0]){
            $c_pair =  [
             'name'=>$val[0],
             'single_price'=>$val[2],
@@ -99,6 +99,16 @@ class MatchMaker extends Controller
     return $this->check();
    }
    
-
+   function expectedAmount(){
+     $pairings = $this->check()['pairings'];
+     $kitchen_total = 0;
+     $center_total = 0;
+     foreach ($pairings as $key => $value) {
+       $kitchen_total += $value['k']['single_price'] * $value['k']['amount'];
+       $center_total += $value['c']['single_price'] * $value['c']['amount'];
+     }
+     return ['kitchen_estimate'=>$kitchen_total,
+     'center_estimate'=>$center_total];
+   }
 //class bracket below
 }

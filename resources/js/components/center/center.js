@@ -61,9 +61,15 @@ export default class Center extends Component {
     }
   }
 
+  showSpinner(){
+    document.getElementById('spinner').style.display  ="inline-block";
+  }
   sendButton(){
     if(this.state.items.length !==0){
-      return <button onClick = {()=>{this.shipValues()}}className="btn btn-secondary">Send</button>
+      return <button onClick = {()=>{this.showSpinner();this.shipValues()}}className="btn btn-secondary">
+      Send
+        <span id="spinner" style={{marginLeft:1,display:'none'}}><i class="fa fa-spinner fa-spin"></i></span>
+      </button>
     }
   }
   setDestination(where){
@@ -146,11 +152,11 @@ export default class Center extends Component {
               <div className="modal-content">
                 <div className="modal-header clearfix">
                 <h4 className="modal-title">Confirm Values</h4>
-                  <h1 className="close" data-dismiss="modal">
+                  <h1 className="close" data-dismiss="modal" >
                   <i class="fa fa-close"></i>
                   </h1>
                 </div>
-                <div className="modal-body" style={{maxHeight:'300px',overflowY:'scrolls'}}>
+                <div className="modal-body" style={{maxHeight:'250px',overflowY:'scroll'}}>
                   <p>Final Values you have counted for <span class="text text-success" style={{fontWeight:700}}>"{this.state.destination}"</span> </p>
                    {this.ejectBasketItems()} 
                 </div>

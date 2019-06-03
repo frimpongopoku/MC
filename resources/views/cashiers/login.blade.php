@@ -4,7 +4,7 @@
   <div class="container"> 
     <div class="col-md-6 col-lg-6 col-sm-6 col-xs-12 offset-md-3" style="padding-top:5vh;">
      
-      <div class="thumbnail raise-hover clearfix" style="background:darkgoldenrod;border:solid 2px darkgroldenrod;padding:40px;margin-top:20vh !important">
+      <div class="thumbnail raise-hover clearfix" style="background:#0e4775;color:white;border:solid 2px darkgroldenrod;padding:40px;margin-top:20vh !important">
         <h3>ACCOUNTING </h3>
         <form action ="/do-authentication" method="post">
           {{csrf_field()}}

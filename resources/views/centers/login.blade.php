@@ -4,11 +4,11 @@
   <div class="container"> 
     <div class="col-md-6 col-lg-6 col-sm-6 col-xs-12 offset-md-3" style="padding-top:5vh;">
       <center> 
-          <img src="/imgs/cookery.jpg" class="k_img" style=""/>
+          <img src="/imgs/cookery.jpg" class="k_img" style="margin-bottom:15px"/>
       </center>
       <center>
-        <div class="triangle"> 
-        </div>
+        {{-- <div class="triangle"> 
+        </div> --}}
       </center>
       <div class="thumbnail t-hover clearfix" style="background:gainsboro; border:solid 4px #DEE;padding:40px;margin-top:0px !important">
         <form action ="/do-authentication" method="post">

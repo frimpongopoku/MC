@@ -21,7 +21,7 @@ use App\Http\Controllers\HTMLEngineGenerator;
 class AppEngineController extends Controller
 {
 
-
+	
 	function getDifference(){
 		$ships = CompleteShipment::where('sorted',1)->take(300)->get();
 		$labels = []; 
@@ -34,6 +34,7 @@ class AppEngineController extends Controller
 			array_push($colors,$this->generateRandomColor());
 			array_push($labels,$ex[1]);
 		}
+		
 		return [
 			'labels'=>$labels,
 			'datasets'=>[ 
@@ -146,7 +147,7 @@ class AppEngineController extends Controller
 			return $temp;
 		}
 		 function deconstruct(){//receieves a string value of compressed kitchen items
-			$list = CompleteShipment::all(); 
+			$list = CompleteShipment::where('sorted',1)->get(); 
 			$n_list = []; 
 			$v_arr =[]; //an array of arrays
 			$title_list = []; 
@@ -161,7 +162,6 @@ class AppEngineController extends Controller
 					if($key_found !== -1 ){
 						$arr_val =$v_arr[$key_found]; 
 						$length = count($arr_val);
-						//array_push($v_arr[$key_found],$total);
 						if($length == $key){
 							//normal flow, just push it on
 							array_push($v_arr[$key_found],$total);
@@ -212,26 +212,62 @@ class AppEngineController extends Controller
 			$c->update(['description'=>$request->center_description]);
 			return 'true';
 		}
+		function prepDescForCompletion($desc){//returns compressed string
+			//take format (item:amount:price) and change to (item:price:total)
+			$desc = explode('<==>',$desc); 
+			$full ="";
+			foreach ($desc as $key => $value) {
+				$val = explode(':',$value);
+				$string =$val[0].':'.$val[2].':'.$val[1]*$val[2]; 
+				if($full ==""){
+					$full = $string;
+				}
+				else{
+					$full = $full.','.$string;
+				}
+
+			}
+			return $full;
+		}
 		function notifyManagers($shipment_notification_id){
 		 $headers = "From: MCSystems\r\n";
 			 $headers .= "MIME-Version: 1.0\r\n";
 			$headers .= "Content-Type: text/html; charset=UTF-8\r\n";
 			$match = new MatchMaker($shipment_notification_id);
 			$results = $match->start();
+			$title = $match->properties->title;
+			$desc = $match->properties->kitchenShipment->description;
 			if($results['flag'] == 0 ){
 				foreach ($match->managers as $man) {
-					$htmlGen = new HTMLEmailGenerator($match->properties->kitchen,$match->properties->center,$man->name,$results['pairings']);
-					$msg  = $htmlGen->generateHtml();
-					mail($man->email,"New Shipment [ Match ]",$msg,$headers);
+					$htmlGen = new HTMLEmailGenerator(
+						$match->properties->id,
+						$this->prepDescForCompletion($desc),
+						$match->expectedAmount()['kitchen_estimate'],
+						$match->properties->kitchen,
+						$match->properties->center,
+						$man->name,
+						$results['pairings']
+					);
+					$msg  = $htmlGen->generateHtml(1);
+					mail($man->email,"$title - Turn Out - [ Match ]",$msg,$headers);
 				}
 			}
 			else{
 				foreach ($match->managers as $man) {
-					$htmlGen = new HTMLEmailGenerator($match->properties->kitchen,$match->properties->center,$man->name,$results['pairings']);
-					$msg  = $htmlGen->generateHtml();
-					return mail($man->email,"New Shipment [ Mismatch ]",$msg,$headers);
+					$htmlGen = new HTMLEmailGenerator(
+						$match->properties->id,
+						$this->prepDescForCompletion($desc),
+						$match->expectedAmount()['kitchen_estimate'],
+						$match->properties->kitchen,
+						$match->properties->center,
+						$man->name,
+						$results['pairings']
+					);
+					$msg  = $htmlGen->generateHtml(0);
+					mail($man->email,"$title - Turn Out - [ Mismatch ]",$msg,$headers);
 				}
 			}
+			return $msg;
 		}
     public function receiveValuesFromCenter(Request $request){
         $id = (int) explode(':',$request->title)[0];

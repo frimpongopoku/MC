@@ -33,7 +33,7 @@
       <h3>Complete Shipments</h3>
       <h5>Download all history of complete shimpents</h5>
       @if($comp >0)
-        <button class="btn btn-danger raise">Clear All History </button>
+        <button class="btn btn-danger raise" onclick ="window.location ='/clear-data/center-shipments'">Clear All History </button>
         <button class="btn btn-success raise"  onclick ="window.location ='/download/complete-shipments'">Download</button>
       @else
         <small class="text text-default">No records to download, or clear.</small>

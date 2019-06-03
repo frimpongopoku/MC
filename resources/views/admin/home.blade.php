@@ -35,7 +35,7 @@
 				</div>
 				{{-- /END OF PASTRY AREA --}}
 			{{-- =================MEASURMENT AREA ===================== --}}
-			<div class="col-md-6 col-mg-6" style="margin:0px;">
+			{{-- <div class="col-md-6 col-mg-6" style="margin:0px;">
 				<div class="thumbnail  t-hover clearfix"> 
 					<h5>ADD UNIT OF MEASUREMENT</h5>
 					<h6 style="margin-left:15x;">Available Units</h6>
@@ -55,7 +55,7 @@
 						<button class="btn btn-success float-right">create</button>
 					</form>
 				</div> 
-			</div>
+			</div> --}}
 			{{-- /END OF MEASUREMENT AREA --}}
 		
 			{{-- =================KITCHEN AREA ===================== --}}

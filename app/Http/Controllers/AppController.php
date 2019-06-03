@@ -142,6 +142,10 @@ class AppController extends Controller
 				CenterShipment::truncate(); 
 				return redirect()->back();
 				break;
+			case 'center-shipments':
+				CompleteShipment::truncate(); 
+				return redirect()->back();
+				break;
 			default:
 				# code...
 				break;
@@ -179,13 +183,13 @@ class AppController extends Controller
 		$n->title = $not->title;
 		$n->save();
 		$not->update(['sorted'=>1]);
-		return "true";
+		return "Great! Tour shipment was sealed, and sent to the accountants.";
 	}
 	public function getShipmentForManagement(){
-		return ShipmentNotification::where(['center_id'=>Session::get('manager-auth')->center_id,'center_sorted'=>1,'sorted'=>0])->with('kitchenShipment','centerShipment')->get();
+		return ShipmentNotification::orderBy('id','DESC')->where(['center_id'=>Session::get('manager-auth')->center_id,'center_sorted'=>1,'sorted'=>0])->with('kitchenShipment','centerShipment')->get();
 	}
 	public function getCenterShipments(){
-		return ShipmentNotification::where(['center_id'=>Session::get('center-auth')->id,'center_sorted'=>0])->get();
+		return ShipmentNotification::orderBy('id','DESC')->where(['center_id'=>Session::get('center-auth')->id,'center_sorted'=>0])->get();
 	}
 	public function logoutOf($where){
 		switch ($where) {
@@ -272,9 +276,10 @@ class AppController extends Controller
 		}
 	}
 	public function goToCooks(){
-		$all_shipments = KitchenShipment::take(300)->get();
+		$all_shipments = KitchenShipment::orderBy('id','DESC')->take(300)->get();
 		$available_centers = Center::all();
 		$last_ship = KitchenShipment::orderBy('id','DESC')->first();
+		$last_ship_dest = "";
 		if($last_ship){
 			$last_ship_dest = Center::where('id',$last_ship->center_id)->first();
 		}

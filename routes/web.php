@@ -42,12 +42,14 @@ Route::get('/download/records/{which}','AppController@downloadShipmentRecords');
 Route::get('/download/complete-shipments','AppController@downloadCompleteShipments');
 Route::get('get/some',function(){
    $m = new App\Http\Controllers\AppEngineController(); 
-   return $m->notifyAdmins(9);
+   //$m = new App\Http\Controllers\MatchMaker(10); 
+   return $m->notifyManagers(11);
+  //return $m->expectedAmount();
    
 });
 Route::get('/clear/me',function(){
     Session::forget('center-auth');
     Session::forget('manager-auth');
-    Session::forget('cook-auth');
+    Session::forget('cook-auth'); 
     return "DOne";
 });

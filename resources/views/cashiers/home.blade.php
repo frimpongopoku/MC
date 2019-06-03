@@ -6,7 +6,7 @@
 @endsection
 @section('content')
   <div class=" phone-m-zero phone-p-zero col-md-10 col-lg-10 col-sm-10 col-xs-12 offset-md-1" style="padding:30px;"> 
-    <div class="components phone-m-zero">
+    <div class=" phone-m-zero">
       <div id="react-acc-div"> 
       </div>
     </div>

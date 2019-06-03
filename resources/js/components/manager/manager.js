@@ -202,6 +202,7 @@ export default class Manager extends Component {
     .done(function(res){
       thisClass.getManagerShipment();
       thisClass.setState({inFocus:null});
+      $('#spinner').hide();
     })
   }
   verify(){
@@ -216,6 +217,7 @@ export default class Manager extends Component {
       }
       if(status){
         var values = this.mapItemToExpectedPrice();
+        this.showSpinner();
         this.sendToAccountant(values);
       }
       else{
@@ -307,14 +309,17 @@ export default class Manager extends Component {
       thisClass.setState({manager:res})
     })
   }
+  showSpinner(){
+    document.getElementById('spinner').style.display  ="inline-block";
+  }
   render() {
     return (
       <div>
         <h3 style={{padding:17}}>The items in the list below will help you compare the number of food stuff that were counted by the kitchen staff, and the values counted in your center</h3>
         <p style={{padding:"1px 17px"}}>
-          <b>{this.state.manager !==null?this.state.manager.name:'...'}</b> 
+          <b>{this.state.manager !==null?this.state.manager.name:'...'} </b> 
           you manage all shipments from 
-          <span style={{border:'solid 2px #ccc', padding:'5px 15px',borderRadius:55}}>
+          <span style={{marginLeft:3,border:'solid 2px #ccc', padding:'5px 15px',borderRadius:55}}>
           {this.state.manager !==null ? this.state.manager.center.name: '...'}
           </span>
           <h5 onClick={()=>{window.location = "/management/logout"}}style={{cursor:'pointer',border:'solid 2px #ccc',padding:"10px 13px",margin:6,borderRadius:"100%",textAlign:'center',display:'inline-block'}}><span className="fa fa-sign-out"></span></h5>
@@ -329,7 +334,10 @@ export default class Manager extends Component {
           </center>
           <div className="float-right">
             <button data-toggle="modal" data-target="#attend-modal" onClick ={()=>{ this.setState({editable:this.state.inFocus})}}className="btn btn-danger little-margin">Attend to this</button>
-            <button className="btn btn-success  little-margin" onClick ={()=>{ this.verify()}}>Seal</button>
+            <button className="btn btn-success  little-margin" onClick ={()=>{ this.verify()}}>
+              Seal
+              <span id="spinner" style={{marginLeft:1,display:'none'}}><i class="fa fa-spinner fa-spin"></i></span>  
+            </button>
           </div>
         </div>
         {/* ================================MODAL AREA====================== */}

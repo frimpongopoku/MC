@@ -43,10 +43,10 @@
       $(document).ready(function(){
         var sidebar= $('#side-bar');
         var hide = function(){
-          sidebar.animate({left:-200},500);
+          sidebar.animate({left:-200},100);
         }
         var show= function(){
-          sidebar.animate({left:0},500);
+          sidebar.animate({left:0},100);
         }
         $('#hide-button').click(function(){
           hide();

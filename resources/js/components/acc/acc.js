@@ -99,7 +99,11 @@ export default class Accountant extends Component {
 				<div className="thumbnail">
 					<h5>Hi Mr Accountant, if the amount of money you have now matches the expected amount,<br/>
 						please click the button below to finish<br/><br/>
-						<button onClick = {()=>{this.metExpectations()}}className="btn btn-primary">We Met Expectations</button>
+						<button onClick = {()=>{this.showSpinner('spinner'); this.metExpectations()}}className="btn btn-primary">
+						We Met Expectations
+						<span id="spinner" style={{marginLeft:1,display:'none'}}><i class="fa fa-spinner fa-spin"></i></span>
+						
+						</button>
 					</h5>
 				</div>
 			);
@@ -146,12 +150,17 @@ export default class Accountant extends Component {
 					<h3 className="text text-danger">{this.state.earnings !==0?this.state.earnings.toString() + " KES ":'Final = '+this.state.inFocus.expected_amount}</h3>
 					<button onClick={()=>{
 						if(this.state.earnings !==0){
+							this.showSpinner('spinner-b')
 							this.didntMeetExpectations()
 						}
 						else{
 							alert("If the amount you have equals "+this.state.inFocus.expected_amount+", please use the 'we met expectations button'");
 						}
-						}}className="btn btn-primary ">Finish</button>
+						}}className="btn btn-primary ">
+						Finish
+						<span id="spinner-b" style={{marginLeft:1,display:'none'}}><i class="fa fa-spinner fa-spin"></i></span>
+						
+						</button>
 				</div>
 			);
 		}
@@ -279,10 +288,15 @@ export default class Accountant extends Component {
 			}
 		})
 		.done(function(res){
+			$('#spinner-b').hide();
 			thisClass.getCompleteShipments();
 			thisClass.cleanUp();
 		})
 	}
+	showSpinner(spinner){
+    document.getElementById(spinner).style.display  ="inline-block";
+	}
+
 	metExpectations(){
 		var thisClass= this;
 		$.ajax({
@@ -293,6 +307,7 @@ export default class Accountant extends Component {
 			}
 		})
 		.done(function(res){
+			$('#spinner').hide();
 			thisClass.getCompleteShipments();
 			thisClass.cleanUp();
 		})
@@ -308,7 +323,7 @@ export default class Accountant extends Component {
 						</center>
 					</div>
         </div>
-				<div className="thumbnail" style={{background:'darkgoldenrod',minHeight:300,maxHeight:400,overflowY:'scroll'}}>
+				<div className="thumbnail" style={{background:'#0e4775',minHeight:300,maxHeight:400,overflowY:'scroll'}}>
 					{this.ejectForReview()}
 				</div>
 					<div className="thumbnail">

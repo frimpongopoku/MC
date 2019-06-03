@@ -61789,10 +61789,20 @@ function (_Component) {
           className: "thumbnail"
         }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h5", null, "Hi Mr Accountant, if the amount of money you have now matches the expected amount,", react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("br", null), "please click the button below to finish", react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("br", null), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("br", null), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
           onClick: function onClick() {
+            _this3.showSpinner('spinner');
+
             _this3.metExpectations();
           },
           className: "btn btn-primary"
-        }, "We Met Expectations")));
+        }, "We Met Expectations", react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("span", {
+          id: "spinner",
+          style: {
+            marginLeft: 1,
+            display: 'none'
+          }
+        }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("i", {
+          "class": "fa fa-spinner fa-spin"
+        })))));
       }
     }
   }, {
@@ -61864,13 +61874,23 @@ function (_Component) {
         }, this.state.earnings !== 0 ? this.state.earnings.toString() + " KES " : 'Final = ' + this.state.inFocus.expected_amount), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
           onClick: function onClick() {
             if (_this5.state.earnings !== 0) {
+              _this5.showSpinner('spinner-b');
+
               _this5.didntMeetExpectations();
             } else {
               alert("If the amount you have equals " + _this5.state.inFocus.expected_amount + ", please use the 'we met expectations button'");
             }
           },
           className: "btn btn-primary "
-        }, "Finish"));
+        }, "Finish", react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("span", {
+          id: "spinner-b",
+          style: {
+            marginLeft: 1,
+            display: 'none'
+          }
+        }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("i", {
+          "class": "fa fa-spinner fa-spin"
+        }))));
       } else {
         return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("center", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h3", null, "You havent chosen any shipment for review yet!"));
       }
@@ -62038,9 +62058,15 @@ function (_Component) {
           received_description: this.reconstruct()
         }
       }).done(function (res) {
+        $('#spinner-b').hide();
         thisClass.getCompleteShipments();
         thisClass.cleanUp();
       });
+    }
+  }, {
+    key: "showSpinner",
+    value: function showSpinner(spinner) {
+      document.getElementById(spinner).style.display = "inline-block";
     }
   }, {
     key: "metExpectations",
@@ -62053,6 +62079,7 @@ function (_Component) {
           id: this.state.inFocus.id
         }
       }).done(function (res) {
+        $('#spinner').hide();
         thisClass.getCompleteShipments();
         thisClass.cleanUp();
       });
@@ -62080,7 +62107,7 @@ function (_Component) {
       })))), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "thumbnail",
         style: {
-          background: 'darkgoldenrod',
+          background: '#0e4775',
           minHeight: 300,
           maxHeight: 400,
           overflowY: 'scroll'
@@ -62470,6 +62497,11 @@ function (_Component) {
       }
     }
   }, {
+    key: "showSpinner",
+    value: function showSpinner() {
+      document.getElementById('spinner').style.display = "inline-block";
+    }
+  }, {
     key: "sendButton",
     value: function sendButton() {
       var _this2 = this;
@@ -62477,10 +62509,20 @@ function (_Component) {
       if (this.state.items.length !== 0) {
         return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
           onClick: function onClick() {
+            _this2.showSpinner();
+
             _this2.shipValues();
           },
           className: "btn btn-secondary"
-        }, "Send");
+        }, "Send", react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("span", {
+          id: "spinner",
+          style: {
+            marginLeft: 1,
+            display: 'none'
+          }
+        }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("i", {
+          "class": "fa fa-spinner fa-spin"
+        })));
       }
     }
   }, {
@@ -62614,8 +62656,8 @@ function (_Component) {
       }))), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "modal-body",
         style: {
-          maxHeight: '300px',
-          overflowY: 'scrolls'
+          maxHeight: '250px',
+          overflowY: 'scroll'
         }
       }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("p", null, "Final Values you have counted for ", react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("span", {
         "class": "text text-success",
@@ -63005,6 +63047,11 @@ function (_Component) {
       }
     }
   }, {
+    key: "showSpinner",
+    value: function showSpinner() {
+      document.getElementById('spinner').style.display = "inline-block";
+    }
+  }, {
     key: "sendButton",
     value: function sendButton() {
       var _this2 = this;
@@ -63012,10 +63059,20 @@ function (_Component) {
       if (this.state.items.length !== 0) {
         return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
           onClick: function onClick() {
+            _this2.showSpinner();
+
             _this2.shipValues();
           },
           className: "btn btn-secondary"
-        }, "Send");
+        }, "Send", react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("span", {
+          id: "spinner",
+          style: {
+            marginLeft: 1,
+            display: 'none'
+          }
+        }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("i", {
+          "class": "fa fa-spinner fa-spin"
+        })));
       }
     }
   }, {
@@ -63135,8 +63192,8 @@ function (_Component) {
       }))), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "modal-body",
         style: {
-          maxHeight: '300px',
-          overflowY: 'scrolls'
+          maxHeight: '250px',
+          overflowY: 'scroll'
         }
       }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("p", null, "Final Values To Be Sent To ", react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("span", {
         "class": "text text-success",
@@ -63789,6 +63846,7 @@ function (_Component) {
         thisClass.setState({
           inFocus: null
         });
+        $('#spinner').hide();
       });
     }
   }, {
@@ -63808,6 +63866,7 @@ function (_Component) {
 
         if (status) {
           var values = this.mapItemToExpectedPrice();
+          this.showSpinner();
           this.sendToAccountant(values);
         } else {
           alert("You cannot seal this shipment, there are discrepancies");
@@ -63952,6 +64011,11 @@ function (_Component) {
       });
     }
   }, {
+    key: "showSpinner",
+    value: function showSpinner() {
+      document.getElementById('spinner').style.display = "inline-block";
+    }
+  }, {
     key: "render",
     value: function render() {
       var _this3 = this;
@@ -63964,8 +64028,9 @@ function (_Component) {
         style: {
           padding: "1px 17px"
         }
-      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("b", null, this.state.manager !== null ? this.state.manager.name : '...'), "you manage all shipments from", react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("span", {
+      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("b", null, this.state.manager !== null ? this.state.manager.name : '...', " "), "you manage all shipments from", react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("span", {
         style: {
+          marginLeft: 3,
           border: 'solid 2px #ccc',
           padding: '5px 15px',
           borderRadius: 55
@@ -64023,7 +64088,15 @@ function (_Component) {
         onClick: function onClick() {
           _this3.verify();
         }
-      }, "Seal"))), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+      }, "Seal", react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("span", {
+        id: "spinner",
+        style: {
+          marginLeft: 1,
+          display: 'none'
+        }
+      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("i", {
+        "class": "fa fa-spinner fa-spin"
+      }))))), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "modal fade",
         id: "attend-modal"
       }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
