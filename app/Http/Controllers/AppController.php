@@ -183,7 +183,7 @@ class AppController extends Controller
 		$n->title = $not->title;
 		$n->save();
 		$not->update(['sorted'=>1]);
-		return "Great! Tour shipment was sealed, and sent to the accountants.";
+		return "Great! The shipment record was forwarded to the accountants.";
 	}
 	public function getShipmentForManagement(){
 		return ShipmentNotification::orderBy('id','DESC')->where(['center_id'=>Session::get('manager-auth')->center_id,'center_sorted'=>1,'sorted'=>0])->with('kitchenShipment','centerShipment')->get();
@@ -276,9 +276,13 @@ class AppController extends Controller
 		}
 	}
 	public function goToCooks(){
-		$all_shipments = KitchenShipment::orderBy('id','DESC')->take(300)->get();
+	    $last_ship ="";$all_shipments=[];
+	    $kitchen = Session::get('cook-auth');
+	    if($kitchen){
+		    $all_shipments = KitchenShipment::where('kitchen_id',$kitchen->id)->orderBy('id','DESC')->take(300)->get();
+	    	$last_ship = KitchenShipment::where('kitchen_id',$kitchen->id)->orderBy('id','DESC')->first();
+	    }
 		$available_centers = Center::all();
-		$last_ship = KitchenShipment::orderBy('id','DESC')->first();
 		$last_ship_dest = "";
 		if($last_ship){
 			$last_ship_dest = Center::where('id',$last_ship->center_id)->first();
