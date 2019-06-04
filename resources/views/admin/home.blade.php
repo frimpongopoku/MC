@@ -19,7 +19,7 @@
 										<button onclick="window.location='/admin/remove-item-{{$value->id}}/pastry'"class="btn btn-danger btn-sm float-right very-little-margin">
 											<i class="fa fa-close"></i>
 										</button>
-										<span>{{$value->name}}  ( {{$value->price}} Ksh )</span>
+										<span>{{$value->name}}  ( {{$value->price}} KES )</span>
 								</div>
 							@endforeach
 						</div>
@@ -119,7 +119,7 @@
 									<button onclick="window.location='/admin/remove-item-{{$value->id}}/acc'"class="btn btn-danger btn-sm float-right very-little-margin">
 										<i class="fa fa-close"></i>
 									</button>
-									<span>{{$value->name}}</span>
+									<span>{{$value->name}} - <small>{{$value->email}}</small></span>
 							</div>
 						@endforeach
 					</div>
@@ -134,7 +134,7 @@
 				</div> 
 			</div>
 			{{-- /END OF ACCOUNTING AREA --}}
-			{{-- =================AMANAGEMENT AREA ===================== --}}
+			{{-- =================MANAGEMENT AREA ===================== --}}
 			<div class="col-md-6 col-mg-6" style="margin:0px;">
 				<div class="thumbnail t-hover  clearfix"> 
 					<h5>ADD MANAGER</h5>
@@ -145,7 +145,7 @@
 									<button onclick="window.location='/admin/remove-item-{{$value->id}}/manager'"class="btn btn-danger btn-sm float-right very-little-margin">
 										<i class="fa fa-close"></i>
 									</button>
-									<span>{{$value->name}}</span>
+									<span>{{$value->name}} - <small>{{$value->email}}</small></span>
 							</div>
 						@endforeach
 					</div>
@@ -177,7 +177,7 @@
 										<button onclick="window.location='/admin/remove-item-{{$value->id}}/admin'"class="btn btn-danger btn-sm float-right very-little-margin">
 													<i class="fa fa-close"></i>
 												</button>
-												<span>{{$value->name}}</span>
+												<span>{{$value->name}} - <small>{{$value->email}}</small></span>
 										</div>
 									@endforeach
 							</div>

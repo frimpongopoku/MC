@@ -62,10 +62,11 @@ class MatchMaker extends Controller
             'single_price'=>$val[2],
             'amount'=>$val[1]
           ]; 
+          if($kitchen[$key][1] == $center[$i][1]){
+            $numbers_match = true;
+          }
          }
-         if($kitchen[$key][1] == $center[$i][1]){
-           $numbers_match = true;
-         }
+         
        }
        $paired = [
          'k'=>$k_pair,

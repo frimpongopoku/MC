@@ -125,7 +125,7 @@ class AdminController extends Controller
 			return redirect()->back();
 		}
 		public function addPastry(Request $request){
-			if(trim($request->name) !=""){
+			if(trim($request->name) !="" && trim($request->price) !=""){
 				$pas = new Pastry(); 
 				$pas->name = $request->name; 
 				$pas->price = $request->price;

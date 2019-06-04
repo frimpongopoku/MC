@@ -110,11 +110,19 @@ class AppController extends Controller
       $carbonized = new Carbon($log->created_at);
 			$humanized = $carbonized->format('l\\, jS \\of F Y');
 			$items = $this->stringify($log->description);
-      $list = $list."<p style='border:solid 1px #ccc; font-size:small;padding:10px;border-radius:10px;'>
-            <span><b>#$log->id</b></span>
+			if($whichLog =="kitchen"){
+				$list = $list."<p style='border:solid 1px #ccc; font-size:small;padding:10px;border-radius:10px;'>
+							<span><b>#$log->center_name</b></span>
+								$items
+							<small style='color:darkred'><b>$humanized</b></small>
+						</p>";
+			}else{
+				$list = $list."<p style='border:solid 1px #ccc; font-size:small;padding:10px;border-radius:10px;'>
+						<span><b>#$log->kitchen_name</b></span>
 							$items
-            <small style='color:darkred'><b>$humanized</b></small>
-          </p>";
+						<small style='color:darkred'><b>$humanized</b></small>
+					</p>";
+			}
     }
     $admin = Session::get('admin-auth');
     $body = "

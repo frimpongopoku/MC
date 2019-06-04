@@ -230,7 +230,7 @@ class AppEngineController extends Controller
 			return $full;
 		}
 		function notifyManagers($shipment_notification_id){
-		 $headers = "From: MCSystems\r\n";
+		 $headers = "From: PhilEdwardSystems\r\n";
 			 $headers .= "MIME-Version: 1.0\r\n";
 			$headers .= "Content-Type: text/html; charset=UTF-8\r\n";
 			$match = new MatchMaker($shipment_notification_id);
@@ -293,20 +293,24 @@ class AppEngineController extends Controller
      * Eg. Cake:34:20 ( 34 cakes , and each cake costs 20 ksh)
      */
     public function receiveValuesFromKitchen(Request $request){
-        $dest = Center::where('name',$request->destination)->first();
-        $defaultTime = Carbon::now()->format('l jS \\of F Y h:i:s A');
-        $new = new KitchenShipment();
-        $new->description = $request->description; 
-        $new->center_id = $dest->id;
-        $new->center_name = $dest->name;
-        $new->save();
-        $notification = new ShipmentNotification(); 
-        $notification->kitchen_shipment_id = $new->id; 
-        $notification->kitchen_id = Session::get('cook-auth')->id; 
-        $notification->title =" New Kitchen Shipment - ".$defaultTime;
-        $notification->kitchen_sorted=1;
-        $notification->center_id = $dest->id;
-        $notification->save();
-        $new->update(['shipment_notification_id'=>$notification->id]);
+				$kitchen = Session::get('cook-auth');
+				if($kitchen){
+					$dest = Center::where('name',$request->destination)->first();
+					$defaultTime = Carbon::now()->format('l jS \\of F Y h:i:s A');
+					$new = new KitchenShipment();
+					$new->description = $request->description; 
+					$new->center_id = $dest->id;
+					$new->kitchen_id = $kitchen->id;
+					$new->center_name = $dest->name;
+					$new->save();
+					$notification = new ShipmentNotification(); 
+					$notification->kitchen_shipment_id = $new->id; 
+					$notification->kitchen_id = Session::get('cook-auth')->id; 
+					$notification->title =" New Kitchen Shipment - ".$defaultTime;
+					$notification->kitchen_sorted=1;
+					$notification->center_id = $dest->id;
+					$notification->save();
+					$new->update(['shipment_notification_id'=>$notification->id]);
+				}
     }
 }

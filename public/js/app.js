@@ -63622,10 +63622,10 @@ function (_Component) {
               amount: center.amount[id],
               single_price: center.prices[id]
             };
-          }
 
-          if (Number(kitchen.amount[index]) === Number(center.amount[id])) {
-            numbers_match = true;
+            if (Number(kitchen.amount[index]) === Number(center.amount[id])) {
+              numbers_match = true;
+            }
           }
         });
         pairArr.push({
@@ -63674,6 +63674,11 @@ function (_Component) {
           className: "btn btn-primary float-right btn-sm"
         }, "Review"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("p", null, item.title));
       });
+    }
+  }, {
+    key: "showSpinner",
+    value: function showSpinner(id) {
+      document.getElementById(id).style.display = "inline-block";
     }
   }, {
     key: "fashionForEdit",
@@ -63866,7 +63871,7 @@ function (_Component) {
 
         if (status) {
           var values = this.mapItemToExpectedPrice();
-          this.showSpinner();
+          this.showSpinner('spinner');
           this.sendToAccountant(values);
         } else {
           alert("You cannot seal this shipment, there are discrepancies");
@@ -64011,11 +64016,6 @@ function (_Component) {
       });
     }
   }, {
-    key: "showSpinner",
-    value: function showSpinner() {
-      document.getElementById('spinner').style.display = "inline-block";
-    }
-  }, {
     key: "render",
     value: function render() {
       var _this3 = this;
@@ -64130,14 +64130,19 @@ function (_Component) {
       }, "Come back later"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
         className: "btn btn-primary",
         onClick: function onClick() {
+          _this3.showSpinner('b-spinner');
+
           _this3.submitEdits();
         }
-      }, "Fix"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
-        className: "btn btn-primary",
-        onClick: function onClick() {
-          console.log(_this3.state);
+      }, "Fix", react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("span", {
+        id: "b-spinner",
+        style: {
+          marginLeft: 1,
+          display: 'none'
         }
-      }, "Fix2"))))));
+      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("i", {
+        "class": "fa fa-spinner fa-spin"
+      }))))))));
     }
   }]);
 

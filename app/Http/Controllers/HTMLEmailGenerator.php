@@ -43,12 +43,10 @@ class HTMLEmailGenerator extends Controller
 						<br>
 						<hr>
 						<br>
-						<small>If all the items match, this button will push the list to the account straight forward
-						and there would be nothing else to do. 
-							If there is a mismatch, the button will take you to your dashboard, where you will 
-							be given the tools to correct this.
+						<small>Please deal with this in person, and visit your dashboard to input correct and matching values
 						</small><br><br>
-						<a href='/accounting' style='background:darkred;color:white;text-decoration: none;border:solid 2px white; padding:10px 30px; margin:10px;border-radius:5px;'>Fix This</a>
+					
+						<a href='http://philedwardscatering.commcycle.co/accounting' style='background:darkred;color:white;text-decoration: none;border:solid 2px white; padding:10px 30px; margin:10px;border-radius:5px;'>Fix This</a>
 						</div>
 				";
 			return $body;
@@ -64,12 +62,9 @@ class HTMLEmailGenerator extends Controller
 						<br>
 						<hr>
 						<br>
-						<small>If all the items match, this button will push the list to the account straight forward
-						and there would be nothing else to do. 
-							If there is a mismatch, the button will take you to your dashboard, where you will 
-							be given the tools to correct this.
+						<small>This button will push the above values to the accountants,and you will be done with this shipment!
 						</small><br><br>
-						<a href='/manager/forward-to-acc/?not_id=$this->notification_id&desc=$this->description&expected_amount=$this->expected_amount' style='background:darkgreen;color:white;text-decoration: none;border:solid 2px white; padding:10px 30px; margin:10px;border-radius:5px;'>Confirm</a>
+						<a href='http://philedwardscatering.commcycle.co/manager/forward-to-acc/?not_id=$this->notification_id&desc=$this->description&expected_amount=$this->expected_amount' style='background:darkgreen;color:white;text-decoration: none;border:solid 2px white; padding:10px 30px; margin:10px;border-radius:5px;'>Confirm</a>
 						</div>
 				";
 			return $body;

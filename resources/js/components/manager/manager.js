@@ -52,10 +52,11 @@ export default class Manager extends Component {
         center.names.forEach((c,id)=>{
             if(c.trim() === item.trim()){
                l = {name:c,amount:center.amount[id],single_price:center.prices[id]}
-            }
-            if(Number(kitchen.amount[index]) === Number(center.amount[id])){
-              numbers_match = true;
-            }
+                if(Number(kitchen.amount[index]) === Number(center.amount[id])){
+                  numbers_match = true;
+                }
+              }
+            
          })
          pairArr.push({k:k,c:l,numbers_match:numbers_match});
       })
@@ -83,6 +84,9 @@ export default class Manager extends Component {
         </div>
       )
     })
+  }
+  showSpinner(id){
+    document.getElementById(id).style.display  ="inline-block";
   }
   fashionForEdit(kitchen,center){
     let k_string = ""; 
@@ -217,7 +221,7 @@ export default class Manager extends Component {
       }
       if(status){
         var values = this.mapItemToExpectedPrice();
-        this.showSpinner();
+        this.showSpinner('spinner');
         this.sendToAccountant(values);
       }
       else{
@@ -309,9 +313,7 @@ export default class Manager extends Component {
       thisClass.setState({manager:res})
     })
   }
-  showSpinner(){
-    document.getElementById('spinner').style.display  ="inline-block";
-  }
+ 
   render() {
     return (
       <div>
@@ -368,8 +370,9 @@ export default class Manager extends Component {
                 </div>
                 <div className="modal-footer">
                   <button className="btn btn-danger" data-dismiss="modal">Come back later</button>
-                  <button className="btn btn-primary" onClick={()=>{this.submitEdits()}}>Fix</button>
-                  <button className="btn btn-primary" onClick={()=>{console.log(this.state)}}>Fix2</button>
+                  <button className="btn btn-primary" onClick={()=>{this.showSpinner('b-spinner');this.submitEdits()}}>Fix
+                  <span id="b-spinner" style={{marginLeft:1,display:'none'}}><i class="fa fa-spinner fa-spin"></i></span>
+                  </button>
                 </div>
               </div>
             </div>
