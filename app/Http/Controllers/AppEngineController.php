@@ -267,7 +267,7 @@ class AppEngineController extends Controller
 					mail($man->email,"$title - Turn Out - [ Mismatch ]",$msg,$headers);
 				}
 			}
-			return $msg;
+			return "Done!";
 		}
     public function receiveValuesFromCenter(Request $request){
         $id = (int) explode(':',$request->title)[0];
@@ -284,7 +284,7 @@ class AppEngineController extends Controller
             'center_shipment_id'=>$new->id,
             'center_sorted'=>1,
 				]);
-				$this->notifyManagers($not->id);
+				return $this->notifyManagers($not->id);
     }
     /**
      * 

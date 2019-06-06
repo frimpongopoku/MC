@@ -18,7 +18,7 @@
 				}
 			</style>
 			<div class="welcome-page" >
-					<center><h1 style="color:#afafaf;">Welcome to Mwasaru Catering</h1></center>
+					<center><h1 style="color:#afafaf;">UTER Welcome Phil Edwards Catering</h1></center>
 					<div class="col-md-10 col-lg-10 col-sm-6  offset-md-1" style="padding:30px;">
 						<div class="row main-fix">
 							<div onclick="window.location='/cooks'" class="cooks-effect thumbnail raise menu-cards"> 

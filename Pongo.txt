@@ -1,14 +1,2 @@
-change the ccolor of items on the accounting side
-
-Change Whole color scheme of manager
-
-solve the last_ship_dest issue  _/
-change the speed of the sidebar _/
-solve the mailing issue for mismatch_/
-
-Make everything --orderyby DESC _/
-   in history, _/
-    and in item shipments at center, acc, and co_/
-
-
-    cake:45:20<==>pie:23:10<==>
+create history of discrepancies for admin side.
+send values straight to accountant when values match
