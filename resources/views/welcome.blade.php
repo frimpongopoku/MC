@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Phil & Edwards Catering</title>
+        <title>Phil Edwards Catering</title>
         <!-- Fonts -->
 			<link href="https://fonts.googleapis.com/css?family=Nunito:200,600" rel="stylesheet">
 			<link href="https://fonts.googleapis.com/css?family=Google+Sans" rel="stylesheet">
@@ -18,7 +18,7 @@
 				}
 			</style>
 			<div class="welcome-page" >
-					<center><h1 style="color:#afafaf;">UTER Welcome Phil Edwards Catering</h1></center>
+					<center><h1 style="color:#afafaf;">Welcome to Phil Edwards Catering</h1></center>
 					<div class="col-md-10 col-lg-10 col-sm-6  offset-md-1" style="padding:30px;">
 						<div class="row main-fix">
 							<div onclick="window.location='/cooks'" class="cooks-effect thumbnail raise menu-cards"> 
