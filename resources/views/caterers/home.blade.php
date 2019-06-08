@@ -5,7 +5,6 @@
 
 @section('custom-style')
   <style> 
-    
   </style>
 @endsection
 @section('content')
@@ -31,7 +30,7 @@
       </div>
       <div class="components phone-m-zero ">
         @if($last_ship)
-          <p style="margin:10px;"class="alert alert-info">Last items were sent {{$last_ship_dest->name}} {{$last_ship->created_at->diffForHumans()}}
+          <p style="margin:10px;"class="alert alert-info">Last items were sent to {{$last_ship_dest->name}} {{$last_ship->created_at->diffForHumans()}}
         @endif
         <div id="creation-area">
          <div id="cooks-react-div"></div>

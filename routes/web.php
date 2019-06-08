@@ -7,6 +7,7 @@ Route::get('/{where}',"AppController@showLogin");
 Route::post('/do-authentication',"AppController@authenticate");
 Route::get('/centers/management',"AppController@showManagerLogin");
 Route::get('/admin/home',"AppController@goToAdminPanel");
+Route::get('/admin/mismatch',"AppController@goToMismatches");
 Route::get('/admin/logout',"AdminController@logout");
 Route::post('add-center','AdminController@addCenter'); 
 Route::post('add-manager','AdminController@addManager');
@@ -40,10 +41,13 @@ Route::get('/admin/document-history','AppController@goToDocumentHistoryPage');
 Route::get('/clear-data/{whichBase}','AppController@clearWhichDataBase');
 Route::get('/download/records/{which}','AppController@downloadShipmentRecords');
 Route::get('/download/complete-shipments','AppController@downloadCompleteShipments');
+Route::get('/download/mismatches','AppController@downloadMismatches');
 Route::get('get/some',function(){
-   $m = new App\Http\Controllers\AppEngineController(); 
-   //$m = new App\Http\Controllers\MatchMaker(10); 
-   return $m->notifyManagers(11);
+   //$m = new App\Http\Controllers\AppEngineController(); 
+   $u = App\ShipmentNotification::where('id',15)->first();
+   $m = new App\Http\Controllers\MatchMaker(3); 
+   return $m->expectedAmount();
+   //return $m->changeDescToReadableItems($u->kitchenShipment->description);
   //return $m->expectedAmount();
    
 });

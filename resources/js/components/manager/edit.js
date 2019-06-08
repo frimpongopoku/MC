@@ -108,7 +108,7 @@ export default class Edit extends Component {
   render() {
     return (
       <div>
-        <div className="thumbnail" > 
+        {/* <div className="thumbnail" > 
           <p>All the items that were sent from the kitchen</p>
           <div id="add-pane">
             <select className="form-control" ref="pastry">
@@ -120,7 +120,7 @@ export default class Edit extends Component {
           <div style={{height:250,maxHeight:250,minHeight:250,overflowY:'scroll'}}>
             {this.ejectKitchenItems()}
           </div>
-        </div>
+        </div> */}
         <div className="thumbnail" > 
           <div id="add-pane">
           <p>All the items that were sent from the center</p>

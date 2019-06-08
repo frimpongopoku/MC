@@ -10,6 +10,7 @@
         <link href="https://fonts.googleapis.com/css?family=Nunito:200,600,700,900" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css?family=Google+Sans" rel="stylesheet">
         <link href="{{asset('css/application.css')}}" rel="stylesheet">
+        <link rel="shortcut icon"  type="img/png" href="{{asset('imgs/bb.png')}}">
         <link href="{{asset('css/app.css')}}" rel="stylesheet">
         <link href="{{asset('font/css/font-awesome.min.css')}}" rel="stylesheet">
     </head>

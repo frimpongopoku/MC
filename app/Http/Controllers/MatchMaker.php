@@ -49,7 +49,7 @@ class MatchMaker extends Controller
      $pairs = []; 
      foreach ($kitchen as $key => $value) {
        $numbers_match = false;
-       $c_pair =['name'=>'NA','single_price'=>'NA','amount'=>'NA'];
+       $c_pair =['name'=>'NA','single_price'=>0,'amount'=>0];
        $k_pair = [
          'name'=>$value[0],
          'single_price'=>$value[2],
@@ -96,7 +96,6 @@ class MatchMaker extends Controller
    }
 
    function start(){
-     //return $this->managers;
     return $this->check();
    }
    

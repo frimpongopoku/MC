@@ -17,9 +17,20 @@ use App\CenterShipment;
 use App\CompleteShipment;
 use PDF;
 use Carbon\Carbon;
+use App\Gossip;
 class AppController extends Controller
 {
 
+	public function goToMismatches(){
+		$gossips = Gossip::where('type','mismatch')->orderBy('id','DESC')->take(150)->get();
+		return view('admin.mismatch',compact('gossips'));
+	}
+	public function downloadMismatches(){
+		$carbonized = new Carbon();
+		$humanized = $carbonized->format('l\\, jS \\of F Y');
+	  $pdf = \PDF::loadHTML($this->generateMismatchHtml());
+	  return $pdf->download("Mismatch records download - $humanized");
+	}
 	public function downloadCompleteShipments(){
 		$carbonized = new Carbon();
 		$humanized = $carbonized->format('l\\, jS \\of F Y');
@@ -97,6 +108,36 @@ class AppController extends Controller
     ";
     return $body; 
   }
+	public function generateMismatchHtml(){
+		$logs = Gossip::where('type','mismatch')->orderBy('id','DESC')->get(); 
+    $number= count($logs);
+    $list ="";
+    foreach($logs as $log){
+      $carbonized = new Carbon($log->created_at);
+			$humanized = $carbonized->format('l\\, jS \\of F Y');
+      $list = $list."<p style='border:solid 1px #ccc; font-size:small;padding:10px;border-radius:10px;'>
+            <span><b>#$log->id</b></span>
+							$log->description
+							<br/>
+            <small style='color:darkred'><b>$humanized</b></small>
+          </p>";
+    }
+    $admin = Session::get('admin-auth');
+    $body = "
+      <div style='margin:0px'> 
+        <div style='width:100%; background:crimson;padding:10px 50px; margin:0px !important'> 
+          <br><small style='color:white;font-family:sans-serif;'><b>Downloaded By $admin->name </b></small>
+          <small style='color:white;font-family:sans-serif;'><b>( $number Logs )</b></small>
+          <h1 style='color:white; font-family:sans-serif; margin-top:0px;   text-shadow: 1px 2px 1px black; text-transform:capitalize;'>Records Of Mismatches</h1>
+        </div>
+        <div style='min-height: 500px;padding:10px 30px;line-height:1.5;font-size:medium;font-family: sans-serif'>
+          <h3><center>ADMIN LOG SHEET</center></h3>
+          $list
+        </div>
+      </div>
+    ";
+    return $body; 
+  }
 	public function generateLogsHtml($whichLog){
 		if($whichLog =="kitchen"){
 			$logs = KitchenShipment::orderBy('id','DESC')->get(); 
@@ -154,6 +195,10 @@ class AppController extends Controller
 				CompleteShipment::truncate(); 
 				return redirect()->back();
 				break;
+			case 'mismatches':
+				Gossip::where('type','mismatch')->delete(); 
+				return redirect()->back();
+				break;
 			default:
 				# code...
 				break;
@@ -165,11 +210,15 @@ class AppController extends Controller
 		}
 		$k = KitchenShipment::count();
 		$c = CenterShipment::count(); 
+		if($k == 0 && $c== 0){
+			ShipmentNotification::truncate();
+		}
 		$comp = CompleteShipment::where('sorted',1)->count();
-		return view('admin.document',compact('k','c','comp'));
+		$m = Gossip::where('type','mismatch')->count();
+		return view('admin.document',compact('k','c','comp','m'));
 	}
 	public function getForAcc(){
-		return CompleteShipment::where('sorted',0)->get();
+		return CompleteShipment::where('sorted',0)->orderBy('id','DESC')->get();
 	}
 	public function getAccountant(){
 		$acc = Accountant::where('id',Session::get('acc-auth')->id)->first(); 

@@ -178,19 +178,26 @@ export default class Manager extends Component {
  
 
   submitEdits(){
-    let set = this.compressArraysForDb(this.state.editable);
-    $.ajax({
-      method:'get',
-      url:'/manager/rectify',
-      data:{
-        id:this.state.itemInFocusID,
-        kitchen_description:set.kitchenString,
-        center_description:set.centerString
-      }
-    })
-    .done(function(response){
-      window.location = "/centers/manager/home";
-    })
+    
+    if(this.state.editable){
+      this.showSpinner('b-spinner');
+      let set = this.compressArraysForDb(this.state.editable);
+      $.ajax({
+        method:'get',
+        url:'/manager/rectify',
+        data:{
+          id:this.state.itemInFocusID,
+          kitchen_description:set.kitchenString,
+          center_description:set.centerString
+        }
+      })
+      .done(function(response){
+        window.location = "/centers/manager/home";
+      })
+    }
+    else{
+      alert("You have not chosen anything!")
+    }
   }
   sendToAccountant(values){
     var thisClass = this;
@@ -229,7 +236,7 @@ export default class Manager extends Component {
       }
     }
     else{
-      alert("You have not selected anything under to be reviewed")
+      alert("No shipment is under review yet!")
     }
   }
   
@@ -315,7 +322,7 @@ export default class Manager extends Component {
   }
  
   render() {
-    return (
+    return ( 
       <div>
         <h3 style={{padding:17}}>The items in the list below will help you compare the number of food stuff that were counted by the kitchen staff, and the values counted in your center</h3>
         <p style={{padding:"1px 17px"}}>
@@ -370,7 +377,7 @@ export default class Manager extends Component {
                 </div>
                 <div className="modal-footer">
                   <button className="btn btn-danger" data-dismiss="modal">Come back later</button>
-                  <button className="btn btn-primary" onClick={()=>{this.showSpinner('b-spinner');this.submitEdits()}}>Fix
+                  <button className="btn btn-primary" onClick={()=>{this.submitEdits()}}>Fix
                   <span id="b-spinner" style={{marginLeft:1,display:'none'}}><i class="fa fa-spinner fa-spin"></i></span>
                   </button>
                 </div>

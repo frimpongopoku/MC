@@ -18,6 +18,8 @@ use Carbon\Carbon;
 use App\CompleteShipment;
 use App\Http\Controllers\MatchMaker;
 use App\Http\Controllers\HTMLEngineGenerator;
+use App\Http\Controllers\TalkingBird;
+
 class AppEngineController extends Controller
 {
 
@@ -117,8 +119,8 @@ class AppEngineController extends Controller
 				'fill'=>false
 			];
 		}
-		function elementize($desc){
-			$arr = explode(',',$desc); 
+		function elementize($desc,$pin){
+			$arr = explode($pin,$desc); 
 			$n_array= []; 
 			foreach ($arr as  $value) {
 				array_push($n_array,explode(':',$value)); 
@@ -154,7 +156,7 @@ class AppEngineController extends Controller
 			foreach ($list as  $key => $value) {
 				$ex = explode("-",$value->title);
 				array_push($title_list,$ex[1]);
-				$el =$this->elementize($value->received_description);
+				$el =$this->elementize($value->received_description,',');
 				foreach($el as $val){
 					$name = $val[0]; 
 					$total = $val[2];
@@ -229,16 +231,52 @@ class AppEngineController extends Controller
 			}
 			return $full;
 		}
+		function streamLineToAcc($item_to_totals_desc,$expected_amount,$title,$shipment_id){
+			$new = new CompleteShipment(); 
+			$new->description = $item_to_totals_desc; 
+			$new->expected_amount = $expected_amount; 
+			$new->title = $title; 
+			$new->shipment_notification_id = $shipment_id;
+			$new->save();
+		}
+		function changeDescToReadableItems($desc){
+			$pieces = $this->elementize($desc,'<==>'); 
+			$string = "";
+			foreach ($pieces as $key => $value) {
+				if($string == ""){
+					$string = $value[0].' - '.$value[1];
+				}
+				else{
+					$string = $string.' , '.$value[0].' - '.$value[1];
+				}
+			}
+			return $string;
+		}
 		function notifyManagers($shipment_notification_id){
-		 $headers = "From: PhilEdwardSystems\r\n";
-			 $headers .= "MIME-Version: 1.0\r\n";
+		  $headers = "From: PhilEdwardSystems\r\n";
+			$headers .= "MIME-Version: 1.0\r\n";
 			$headers .= "Content-Type: text/html; charset=UTF-8\r\n";
 			$match = new MatchMaker($shipment_notification_id);
 			$results = $match->start();
 			$title = $match->properties->title;
 			$desc = $match->properties->kitchenShipment->description;
 			if($results['flag'] == 0 ){
-				foreach ($match->managers as $man) {
+				//nothing is wrong, you dont need to notify manager
+				//send straight to accountant
+				$item_to_totals= $this->prepDescForCompletion($desc); 
+				$expected_amount = $match->expectedAmount()['kitchen_estimate']; 
+				$this->streamLineToAcc(
+					$item_to_totals,
+					$expected_amount,
+					$title,
+					$shipment_notification_id
+				);
+				$shipment_not = ShipmentNotification::where('id',$shipment_notification_id)->first(); 
+				$shipment_not->update(['sorted'=>1]);
+			}
+			else{
+				$admins = Admin::all();
+				foreach ($admins as $man) {
 					$htmlGen = new HTMLEmailGenerator(
 						$match->properties->id,
 						$this->prepDescForCompletion($desc),
@@ -248,11 +286,9 @@ class AppEngineController extends Controller
 						$man->name,
 						$results['pairings']
 					);
-					$msg  = $htmlGen->generateHtml(1);
-					mail($man->email,"$title - Turn Out - [ Match ]",$msg,$headers);
+					$msg  = $htmlGen->generateHtml(0);
+					mail($man->email,"$title - Turn Out - [ Mismatch ]",$msg,$headers);
 				}
-			}
-			else{
 				foreach ($match->managers as $man) {
 					$htmlGen = new HTMLEmailGenerator(
 						$match->properties->id,
@@ -266,6 +302,17 @@ class AppEngineController extends Controller
 					$msg  = $htmlGen->generateHtml(0);
 					mail($man->email,"$title - Turn Out - [ Mismatch ]",$msg,$headers);
 				}
+				$talking_bird = new TalkingBird();
+				$talking_bird->reportMismatch(
+					$match->properties->center,
+					$match->properties->kitchen,$title,
+					$this->changeDescToReadableItems(
+						$match->properties->kitchenShipment->description
+					),
+					$this->changeDescToReadableItems(
+						$match->properties->centerShipment->description
+						)
+					);
 			}
 			return "Done!";
 		}

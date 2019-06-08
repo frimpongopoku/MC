@@ -3,13 +3,14 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Phil Edwards Catering</title>
+				<title>Phil Edwards Catering</title>
+				<link rel="shortcut icon"  type="img/png" href="{{asset('imgs/bb.png')}}">
         <!-- Fonts -->
 			<link href="https://fonts.googleapis.com/css?family=Nunito:200,600" rel="stylesheet">
 			<link href="https://fonts.googleapis.com/css?family=Google+Sans" rel="stylesheet">
 			<link href="{{asset('css/application.css')}}" rel="stylesheet">
 			<link href="{{asset('css/app.css')}}" rel="stylesheet">
-            
+             
     </head>
     <body>
 			<style> 

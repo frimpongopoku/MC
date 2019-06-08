@@ -4,6 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>@yield('custom-title')</title>
+        <link rel="shortcut icon"  type="img/png" href="{{asset('imgs/bb.png')}}">
         <!-- Fonts -->
         <link href="https://fonts.googleapis.com/css?family=Nunito:200,600" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css?family=Google+Sans" rel="stylesheet">
@@ -26,7 +27,9 @@
             <li class="s-nav-item" onclick="window.location ='/admin/home'">Home</h1> 
             <li class="s-nav-item" onclick="window.location ='/admin/statistics'">Sales And Structure Map</h1> 
             <li class="s-nav-item" onclick="window.location ='/admin/document-history'">Document History</h1> 
+            <li class="s-nav-item" onclick="window.location ='/admin/mismatch'">Mismatch History</h1> 
             <li class="s-nav-item" onclick="window.location = '/admin/logout'">Logout</h1> 
+          
           </u>
         </div>
         <div class="col-md-8 col-lg-8 col-sm-8 offset-md-2 col-xs-12"> 

@@ -39,6 +39,16 @@
         <small class="text text-default">No records to download, or clear.</small>
       @endif
     </div>
+    <div class="raise-hover thumbnail" style="padding:30px"> 
+      <h3>Mismatch</h3>
+      <h5>Download all history of mismatches</h5>
+      @if($m >0)
+        <button class="btn btn-danger raise" onclick ="window.location ='/clear-data/mismatches'">Clear All History </button>
+        <button class="btn btn-success raise"  onclick ="window.location ='/download/mismatches'">Download</button>
+      @else
+        <small class="text text-default">No records to download, or clear.</small>
+      @endif
+    </div>
   </div>
 @endsection 
 

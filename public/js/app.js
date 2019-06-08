@@ -63434,34 +63434,6 @@ function (_Component) {
 
       return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "thumbnail"
-      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("p", null, "All the items that were sent from the kitchen"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-        id: "add-pane"
-      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("select", {
-        className: "form-control",
-        ref: "pastry"
-      }, this.ejectPastries()), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
-        ref: "number",
-        type: "number",
-        placeholder: "how many",
-        className: "form-control",
-        style: {
-          width: '27%',
-          display: 'inline-block'
-        }
-      }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
-        onClick: function onClick() {
-          _this4.addToKitchen();
-        },
-        className: "btn btn-success little-margin"
-      }, "Add")), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-        style: {
-          height: 250,
-          maxHeight: 250,
-          minHeight: 250,
-          overflowY: 'scroll'
-        }
-      }, this.ejectKitchenItems())), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-        className: "thumbnail"
       }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         id: "add-pane"
       }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("p", null, "All the items that were sent from the center"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("select", {
@@ -63821,18 +63793,23 @@ function (_Component) {
   }, {
     key: "submitEdits",
     value: function submitEdits() {
-      var set = this.compressArraysForDb(this.state.editable);
-      $.ajax({
-        method: 'get',
-        url: '/manager/rectify',
-        data: {
-          id: this.state.itemInFocusID,
-          kitchen_description: set.kitchenString,
-          center_description: set.centerString
-        }
-      }).done(function (response) {
-        window.location = "/centers/manager/home";
-      });
+      if (this.state.editable) {
+        this.showSpinner('b-spinner');
+        var set = this.compressArraysForDb(this.state.editable);
+        $.ajax({
+          method: 'get',
+          url: '/manager/rectify',
+          data: {
+            id: this.state.itemInFocusID,
+            kitchen_description: set.kitchenString,
+            center_description: set.centerString
+          }
+        }).done(function (response) {
+          window.location = "/centers/manager/home";
+        });
+      } else {
+        alert("You have not chosen anything!");
+      }
     }
   }, {
     key: "sendToAccountant",
@@ -63877,7 +63854,7 @@ function (_Component) {
           alert("You cannot seal this shipment, there are discrepancies");
         }
       } else {
-        alert("You have not selected anything under to be reviewed");
+        alert("No shipment is under review yet!");
       }
     }
   }, {
@@ -64130,8 +64107,6 @@ function (_Component) {
       }, "Come back later"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
         className: "btn btn-primary",
         onClick: function onClick() {
-          _this3.showSpinner('b-spinner');
-
           _this3.submitEdits();
         }
       }, "Fix", react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("span", {
