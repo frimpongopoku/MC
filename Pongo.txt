@@ -1,24 +1,11 @@
-create history of discrepancies for admin side.
-   send message to admin, and manager, if there are discrepancies
-send values straight to accountant if they match match_/
-Prevent manager access to kitchen values change_/
 
-New Files: 
-   migration files xxxx
-   Gossip Model _/
-   TalkingBird Controller_/
-   mismatch.blade.php _/
-   
 
 Modified: 
-   AppEngineController _/
-   AppController _/
-   Admi.blade ( layouts)_/
-   web.php _/
-   document.blade.php _/
-   app.js_/
-
+   AppController 
+   AppEngineController
+   talkingBirdController
+   web.php   
+   matchmaker
+   mismatch.blade
 Database: 
-   New database table -> gossips (type:string,description:string)
-
-
+   gossips: new column( details - text --nullable)

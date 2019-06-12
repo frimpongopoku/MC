@@ -61835,7 +61835,7 @@ function (_Component) {
       var _this5 = this;
 
       if (this.state.inFocus !== null) {
-        return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h5", null, "If the amount you have does not match what is expected,", react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("br", null), "please take sometime to indicate how many of which items were left over"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("hr", null), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("small", null, "Item - ( quantity from kitchen )"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("select", {
+        return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h5", null, "If the amount you have does not match what is expected,", react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("br", null), "please take sometime to indicate how many of which items were left over"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("hr", null), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("small", null, "Item - ( quantity counted )"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("select", {
           ref: "item_name",
           className: "form-control",
           style: {
@@ -63648,6 +63648,21 @@ function (_Component) {
       });
     }
   }, {
+    key: "emptyReviewList",
+    value: function emptyReviewList() {
+      if (this.state.availableForReview.length === 0) {
+        return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+          className: "thumbnail clearfix",
+          style: {
+            cursor: 'pointer',
+            padding: 20,
+            paddingBottom: 5,
+            background: 'antiquewhite'
+          }
+        }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("p", null, "Great news! No mistakes for you to correct yet!"));
+      }
+    }
+  }, {
     key: "showSpinner",
     value: function showSpinner(id) {
       document.getElementById(id).style.display = "inline-block";
@@ -63993,6 +64008,34 @@ function (_Component) {
       });
     }
   }, {
+    key: "sealAfterEdit",
+    value: function sealAfterEdit() {
+      if (this.state.editable) {
+        this.showSpinner('b-spinner');
+        var a = this.itemToTotal(this.state.editable.center);
+        var obj = {
+          names: a.names,
+          prices: a.prices,
+          totals: a.totals
+        };
+        var valuesInString = this.shrinkItemsWithTotals(obj);
+        var not_id = this.state.itemInFocusID;
+        $.ajax({
+          method: 'get',
+          url: '/manager/forward-anyway',
+          data: {
+            desc: valuesInString,
+            expected_amount: a.expected,
+            not_id: not_id
+          }
+        }).done(function () {
+          window.location = "/centers/manager/home";
+        });
+      } else {
+        alert("You have to select a shipment first");
+      }
+    }
+  }, {
     key: "render",
     value: function render() {
       var _this3 = this;
@@ -64001,9 +64044,13 @@ function (_Component) {
         style: {
           padding: 17
         }
-      }, "The items in the list below will help you compare the number of food stuff that were counted by the kitchen staff, and the values counted in your center"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("p", {
+      }, "The items in the list below will help you compare the number of food stuff that were counted by the kitchen staff, and the values counted in your center"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         style: {
           padding: "1px 17px"
+        }
+      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("p", {
+        style: {
+          display: 'inline-block'
         }
       }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("b", null, this.state.manager !== null ? this.state.manager.name : '...', " "), "you manage all shipments from", react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("span", {
         style: {
@@ -64012,7 +64059,7 @@ function (_Component) {
           padding: '5px 15px',
           borderRadius: 55
         }
-      }, this.state.manager !== null ? this.state.manager.center.name : '...'), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h5", {
+      }, this.state.manager !== null ? this.state.manager.center.name : '...')), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h5", {
         onClick: function onClick() {
           window.location = "/management/logout";
         },
@@ -64037,7 +64084,7 @@ function (_Component) {
           padding: 25,
           paddingBottom: 10
         }
-      }, this.ejectForReview()), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+      }, this.ejectForReview(), this.emptyReviewList()), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "thumbnail raise-hover clearfix",
         style: {
           padding: 25,
@@ -64060,20 +64107,7 @@ function (_Component) {
           });
         },
         className: "btn btn-danger little-margin"
-      }, "Attend to this"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
-        className: "btn btn-success  little-margin",
-        onClick: function onClick() {
-          _this3.verify();
-        }
-      }, "Seal", react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("span", {
-        id: "spinner",
-        style: {
-          marginLeft: 1,
-          display: 'none'
-        }
-      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("i", {
-        "class": "fa fa-spinner fa-spin"
-      }))))), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+      }, "Correct this"))), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "modal fade",
         id: "attend-modal"
       }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
@@ -64107,16 +64141,16 @@ function (_Component) {
       }, "Come back later"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
         className: "btn btn-primary",
         onClick: function onClick() {
-          _this3.submitEdits();
+          _this3.sealAfterEdit();
         }
-      }, "Fix", react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("span", {
+      }, "Submit these values", react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("span", {
         id: "b-spinner",
         style: {
           marginLeft: 1,
           display: 'none'
         }
       }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("i", {
-        "class": "fa fa-spinner fa-spin"
+        className: "fa fa-spinner fa-spin"
       }))))))));
     }
   }]);

@@ -131,7 +131,7 @@ export default class Accountant extends Component {
 							please take sometime to indicate how many of which items were left over
 						</h5>
 						<hr/>
-						<small>Item - ( quantity from kitchen )</small>
+						<small>Item - ( quantity counted )</small>
 					<select ref="item_name" className="form-control" style={{width:'50%'}}>
 						{this.ejectNames()}
 					</select>

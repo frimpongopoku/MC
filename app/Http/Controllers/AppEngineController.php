@@ -311,11 +311,13 @@ class AppEngineController extends Controller
 					),
 					$this->changeDescToReadableItems(
 						$match->properties->centerShipment->description
-						)
+					),
+					$match->stringMismatchDetails()
 					);
 			}
 			return "Done!";
 		}
+	
     public function receiveValuesFromCenter(Request $request){
         $id = (int) explode(':',$request->title)[0];
         $not = ShipmentNotification::where('id',$id)->first();

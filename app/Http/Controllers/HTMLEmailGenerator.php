@@ -46,7 +46,7 @@ class HTMLEmailGenerator extends Controller
 						<small>Please deal with this in person, and visit your dashboard to input correct and matching values
 						</small><br><br>
 					
-						<a href='http://philedwardscatering.commcycle.co/accounting' style='background:darkred;color:white;text-decoration: none;border:solid 2px white; padding:10px 30px; margin:10px;border-radius:5px;'>Fix This</a>
+						<a href='http://philedwardscatering.commcycle.co/centers/management' style='background:darkred;color:white;text-decoration: none;border:solid 2px white; padding:10px 30px; margin:10px;border-radius:5px;'>Fix This</a>
 						</div>
 				";
 			return $body;

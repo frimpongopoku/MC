@@ -79,7 +79,44 @@ class MatchMaker extends Controller
      return $pairs;
 
    }
-
+   function itemToDifference(){
+     $p = $this->pair(); 
+     $itemDiffArr = [];
+     foreach ($p as $key => $value) {
+       $diff = $value['k']['amount'] - $value['c']['amount'];
+       $diff = $diff;
+       $name = $value['k']['name'];
+       $price = $value['k']['single_price'];
+       if($name == "NA"){
+         //if centers count items that were not found in the kitchen [ very rare occurence but, "defensive" is good]
+        $itemDiffArr[$value['c']['name']] = $diff.':'.$price; 
+       }
+       else{
+        $itemDiffArr[$name] = $diff.':'.$price; 
+       }
+     }
+     //returns this [ 'cake'=>'12:25','pie'=>'10:50'] -> [ item=> 'difference between kitchen and center counts ' : 'price']
+     return $itemDiffArr;
+   }
+   function magnitude($n){
+     if($n < 0 ){
+       return $n * -1;
+     }
+     return $n;
+   }
+   function stringMismatchDetails(){//expects an item to diff arr like $itemDiffArr[] = $diff; 
+    $arr = $this->itemToDifference();
+    $string = ""; 
+    foreach ($arr as $key => $value) {
+      if($string ==""){
+        $string = $key.':'.$value;
+      }
+      else{
+        $string = $string.','.$key.':'.$value;
+      }
+    }
+    return $string;
+  }
    function check(){
      $pairings =  $this->pair();
      $flag = 0; 

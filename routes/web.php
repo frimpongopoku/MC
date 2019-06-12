@@ -42,11 +42,19 @@ Route::get('/clear-data/{whichBase}','AppController@clearWhichDataBase');
 Route::get('/download/records/{which}','AppController@downloadShipmentRecords');
 Route::get('/download/complete-shipments','AppController@downloadCompleteShipments');
 Route::get('/download/mismatches','AppController@downloadMismatches');
+Route::get('/manager/forward-anyway','AppController@forwardToAccountantsAnyway');
+
+
+
+
+
+
+
 Route::get('get/some',function(){
    //$m = new App\Http\Controllers\AppEngineController(); 
    $u = App\ShipmentNotification::where('id',15)->first();
    $m = new App\Http\Controllers\MatchMaker(3); 
-   return $m->expectedAmount();
+   dd($m->stringMismatchDetails());
    //return $m->changeDescToReadableItems($u->kitchenShipment->description);
   //return $m->expectedAmount();
    

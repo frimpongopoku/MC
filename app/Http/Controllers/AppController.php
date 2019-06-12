@@ -111,16 +111,42 @@ class AppController extends Controller
 	public function generateMismatchHtml(){
 		$logs = Gossip::where('type','mismatch')->orderBy('id','DESC')->get(); 
     $number= count($logs);
-    $list ="";
+		$list ="";
+		
     foreach($logs as $log){
+			$details ="";
+			$arr = explode(',',$log->details);
+			foreach ($arr as $key => $value) {
+				$itm = explode(':',$value);
+				$cost = $itm[1] * $itm[2];
+				if ($itm[1] != 0){
+					if($itm[1] > 0 ){
+						$comp = "<small style='display:inline-block;font-weight:700;padding:3px 10px;border:solid 1px red;color:red;border-radius:4px;'>
+							$itm[0] : $itm[1] : $cost KES 
+						</small>
+						";
+					}
+					else{
+						$cost = $cost * -1;
+						$d = $itm[1] * -1;
+						$comp = "<small style='display:inline-block;font-weight:700;padding:3px 10px;border:solid 1px #4caf50;color:#4caf50;border-radius:4px;'>
+						$itm[0] : $d : $cost KES 
+							</small>
+							";
+					}
+					$details .= $comp;
+				}
+			}
       $carbonized = new Carbon($log->created_at);
 			$humanized = $carbonized->format('l\\, jS \\of F Y');
-      $list = $list."<p style='border:solid 1px #ccc; font-size:small;padding:10px;border-radius:10px;'>
+      $list = $list."<h4 style='border:solid 1px #ccc; font-size:small;padding:10px;border-radius:10px;'>
             <span><b>#$log->id</b></span>
 							$log->description
+							<br/><br/>
+							$details
 							<br/>
             <small style='color:darkred'><b>$humanized</b></small>
-          </p>";
+          </h4>";
     }
     $admin = Session::get('admin-auth');
     $body = "
@@ -131,7 +157,9 @@ class AppController extends Controller
           <h1 style='color:white; font-family:sans-serif; margin-top:0px;   text-shadow: 1px 2px 1px black; text-transform:capitalize;'>Records Of Mismatches</h1>
         </div>
         <div style='min-height: 500px;padding:10px 30px;line-height:1.5;font-size:medium;font-family: sans-serif'>
-          <h3><center>ADMIN LOG SHEET</center></h3>
+					<center><h3>ADMIN LOG SHEET</h3>
+						<p style='color:gray'><small class='text text-secondary'>Structure </small> = <small>Item : <b>Kitchen - Center </b> : <span> Cost Of Difference ( KES ) </span> </small></p>
+					</center>
           $list
         </div>
       </div>
@@ -230,6 +258,18 @@ class AppController extends Controller
 			$manager = Manager::where('id',$m->id)->with('center')->first(); 
 			return $manager;
 		}
+	}
+	public function forwardToAccountantsAnyway(Request $request){
+		$not = ShipmentNotification::where('id',$request->not_id)->first();
+		$n = new CompleteShipment(); 
+		$n->description = $request->desc; 
+		$n->shipment_notification_id = $request->not_id;
+		$n->expected_amount = $request->expected_amount; 
+		$n->title = $not->title;
+		$n->save();
+		$manager = Session::get('manager-auth');
+		$not->update(['sorted'=>1]);
+		return "$manager->name, your values have been forwarded to the accountant";
 	}
 	public function forwardToAccountants(Request $request){
 		$not = ShipmentNotification::where('id',$request->not_id)->first();

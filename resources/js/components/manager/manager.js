@@ -85,6 +85,15 @@ export default class Manager extends Component {
       )
     })
   }
+  emptyReviewList(){
+    if(this.state.availableForReview.length ===0){
+      return(
+        <div  className="thumbnail clearfix" style={{cursor:'pointer',padding:20,paddingBottom:5,background:'antiquewhite'}}> 
+          <p>Great news! No mistakes for you to correct yet!</p>
+        </div>
+      )
+    }
+  }
   showSpinner(id){
     document.getElementById(id).style.display  ="inline-block";
   }
@@ -239,7 +248,7 @@ export default class Manager extends Component {
       alert("No shipment is under review yet!")
     }
   }
-  
+   
   deleteFrom(where,index){
     var names,prices,amounts;
     if(where ==="kitchen"){
@@ -289,7 +298,7 @@ export default class Manager extends Component {
     arr.names.forEach((item,index)=>{
       let amount = Number(arr.amount[index]); 
       let price = Number(arr.prices[index]); 
-      let total = amount *price;
+      let total = amount * price;
       names.push(item); 
       totals.push(total);
     })
@@ -320,21 +329,48 @@ export default class Manager extends Component {
       thisClass.setState({manager:res})
     })
   }
- 
+  
+  sealAfterEdit(){
+    if(this.state.editable){
+      this.showSpinner('b-spinner');
+      var a = this.itemToTotal(this.state.editable.center); 
+      var obj = {names:a.names, prices:a.prices,totals:a.totals};
+      var valuesInString  = this.shrinkItemsWithTotals(obj);
+      var not_id = this.state.itemInFocusID;
+      $.ajax({
+        method:'get',
+        url:'/manager/forward-anyway', 
+        data:{
+          desc : valuesInString,
+          expected_amount: a.expected, 
+          not_id: not_id
+        }
+      })
+      .done(function(){
+        window.location = "/centers/manager/home";
+      });
+    }
+    else{
+      alert("You have to select a shipment first")
+    }
+    
+  }
   render() {
     return ( 
       <div>
         <h3 style={{padding:17}}>The items in the list below will help you compare the number of food stuff that were counted by the kitchen staff, and the values counted in your center</h3>
-        <p style={{padding:"1px 17px"}}>
-          <b>{this.state.manager !==null?this.state.manager.name:'...'} </b> 
+        <div style={{padding:"1px 17px"}}>
+         <p style={{display:'inline-block'}}><b>{this.state.manager !==null?this.state.manager.name:'...'} </b> 
           you manage all shipments from 
           <span style={{marginLeft:3,border:'solid 2px #ccc', padding:'5px 15px',borderRadius:55}}>
           {this.state.manager !==null ? this.state.manager.center.name: '...'}
           </span>
+          </p>
           <h5 onClick={()=>{window.location = "/management/logout"}}style={{cursor:'pointer',border:'solid 2px #ccc',padding:"10px 13px",margin:6,borderRadius:"100%",textAlign:'center',display:'inline-block'}}><span className="fa fa-sign-out"></span></h5>
-        </p>
+        </div>
         <div className="thumbnail raise-hover clearfix" style={{background:'burlywood',minHeight:270,maxHeight:450,overflowY:'scroll',padding:25,paddingBottom:10}}> 
            {this.ejectForReview()}
+           {this.emptyReviewList()}
         </div>
         <div className="thumbnail raise-hover clearfix" style={{padding:25,paddingBottom:10}}>
           <center>
@@ -342,11 +378,12 @@ export default class Manager extends Component {
            {this.listComparison()} 
           </center>
           <div className="float-right">
-            <button data-toggle="modal" data-target="#attend-modal" onClick ={()=>{ this.setState({editable:this.state.inFocus})}}className="btn btn-danger little-margin">Attend to this</button>
-            <button className="btn btn-success  little-margin" onClick ={()=>{ this.verify()}}>
+            <button data-toggle="modal" data-target="#attend-modal" onClick ={()=>{ this.setState({editable:this.state.inFocus})}}className="btn btn-danger little-margin">Correct this</button>
+           
+            {/* <button className="btn btn-success  little-margin" onClick ={()=>{ this.verify()}}>
               Seal
-              <span id="spinner" style={{marginLeft:1,display:'none'}}><i class="fa fa-spinner fa-spin"></i></span>  
-            </button>
+              <span style={{marginLeft:1,display:'none'}}><i class="fa fa-spinner fa-spin"></i></span>  
+            </button> */}
           </div>
         </div>
         {/* ================================MODAL AREA====================== */}
@@ -377,8 +414,8 @@ export default class Manager extends Component {
                 </div>
                 <div className="modal-footer">
                   <button className="btn btn-danger" data-dismiss="modal">Come back later</button>
-                  <button className="btn btn-primary" onClick={()=>{this.submitEdits()}}>Fix
-                  <span id="b-spinner" style={{marginLeft:1,display:'none'}}><i class="fa fa-spinner fa-spin"></i></span>
+                  <button className="btn btn-primary" onClick={()=>{this.sealAfterEdit()}}>Submit these values
+                  <span id="b-spinner" style={{marginLeft:1,display:'none'}}><i className="fa fa-spinner fa-spin"></i></span>
                   </button>
                 </div>
               </div>
