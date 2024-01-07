@@ -1,21 +1,11 @@
 <?php
+
 /**
- * Mockery
+ * Mockery (https://docs.mockery.io/)
  *
- * LICENSE
- *
- * This source file is subject to the new BSD license that is bundled
- * with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://github.com/padraic/mockery/blob/master/LICENSE
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to padraic@php.net so we can send you a copy immediately.
- *
- * @category   Mockery
- * @package    Mockery
- * @copyright  Copyright (c) 2010 Pádraic Brady (http://blog.astrumfutura.com)
- * @license    http://github.com/padraic/mockery/blob/master/LICENSE New BSD License
+ * @copyright https://github.com/mockery/mockery/blob/HEAD/COPYRIGHT.md
+ * @license   https://github.com/mockery/mockery/blob/HEAD/LICENSE BSD 3-Clause License
+ * @link      https://github.com/mockery/mockery for the canonical source repository
  */
 
 namespace Mockery;
@@ -26,13 +16,15 @@ use Mockery\Matcher\AnyArgs;
 use Mockery\Matcher\AndAnyOtherArgs;
 use Mockery\Matcher\ArgumentListMatcher;
 use Mockery\Matcher\MultiArgumentClosure;
+use PHPUnit\Framework\Constraint\Constraint;
 
 class Expectation implements ExpectationInterface
 {
+    public const ERROR_ZERO_INVOCATION = 'shouldNotReceive(), never(), times(0) chaining additional invocation count methods has been deprecated and will throw an exception in a future version of Mockery';
     /**
      * Mock object to which this expectation belongs
      *
-     * @var \Mockery\MockInterface
+     * @var \Mockery\LegacyMockInterface
      */
     protected $_mock = null;
 
@@ -49,6 +41,13 @@ class Expectation implements ExpectationInterface
      * @var string|null
      */
     protected $_because = null;
+
+    /**
+     * Expected count of calls to this expectation
+     *
+     * @var int
+     */
+    protected $_expectedCount = -1;
 
     /**
      * Arguments expected by this expectation
@@ -147,10 +146,10 @@ class Expectation implements ExpectationInterface
     /**
      * Constructor
      *
-     * @param \Mockery\MockInterface $mock
+     * @param \Mockery\LegacyMockInterface $mock
      * @param string $name
      */
-    public function __construct(\Mockery\MockInterface $mock, $name)
+    public function __construct(\Mockery\LegacyMockInterface $mock, $name)
     {
         $this->_mock = $mock;
         $this->_name = $name;
@@ -194,7 +193,7 @@ class Expectation implements ExpectationInterface
     /**
      * Throws an exception if the expectation has been configured to do so
      *
-     * @throws \Exception|\Throwable
+     * @throws \Throwable
      * @return void
      */
     private function throwAsNecessary($return)
@@ -203,11 +202,7 @@ class Expectation implements ExpectationInterface
             return;
         }
 
-        $type = version_compare(PHP_VERSION, '7.0.0') >= 0
-            ? "\Throwable"
-            : "\Exception";
-
-        if ($return instanceof $type) {
+        if ($return instanceof \Throwable) {
             throw $return;
         }
 
@@ -224,12 +219,14 @@ class Expectation implements ExpectationInterface
     {
         $mockClass = get_class($this->_mock);
         $container = $this->_mock->mockery_getContainer();
+        /** @var Mock[] $mocks */
         $mocks = $container->getMocks();
         foreach ($this->_setQueue as $name => &$values) {
             if (count($values) > 0) {
                 $value = array_shift($values);
+                $this->_mock->{$name} = $value;
                 foreach ($mocks as $mock) {
-                    if (is_a($mock, $mockClass)) {
+                    if (is_a($mock, $mockClass) && $mock->mockery_isInstance()) {
                         $mock->{$name} = $value;
                     }
                 }
@@ -342,8 +339,7 @@ class Expectation implements ExpectationInterface
             reset($this->_expectedArgs);
 
             if ($this->isAndAnyOtherArgumentsMatcher($lastExpectedArgument)) {
-                $argCountToSkipMatching = $argCount - count($this->_expectedArgs);
-                $args = array_slice($args, 0, $argCountToSkipMatching);
+                $args = array_slice($args, 0, array_search($lastExpectedArgument, $this->_expectedArgs, true));
                 return $this->_matchArgs($args);
             }
 
@@ -392,10 +388,24 @@ class Expectation implements ExpectationInterface
                 return true;
             }
         }
-        if ($expected instanceof \Mockery\Matcher\MatcherAbstract) {
+        if (is_object($expected)) {
+            $matcher = \Mockery::getConfiguration()->getDefaultMatcher(get_class($expected));
+            if ($matcher !== null) {
+                $expected = new $matcher($expected);
+            }
+        }
+
+        if ($expected instanceof \Mockery\Matcher\MatcherInterface) {
             return $expected->match($actual);
         }
+
+        if ($expected instanceof Constraint) {
+            return (bool) $expected->evaluate($actual, '', true);
+        }
+
         if ($expected instanceof \Hamcrest\Matcher || $expected instanceof \Hamcrest_Matcher) {
+            @trigger_error('Hamcrest package has been deprecated and will be removed in 2.0', E_USER_DEPRECATED);
+
             return $expected->matches($actual);
         }
         return false;
@@ -404,7 +414,8 @@ class Expectation implements ExpectationInterface
     /**
      * Expected argument setter for the expectation
      *
-     * @param mixed[] ...$args
+     * @param mixed ...$args
+     *
      * @return self
      */
     public function with(...$args)
@@ -453,7 +464,7 @@ class Expectation implements ExpectationInterface
         } elseif ($argsOrClosure instanceof Closure) {
             $this->withArgsMatchedByClosure($argsOrClosure);
         } else {
-            throw new \InvalidArgumentException(sprintf('Call to %s with an invalid argument (%s), only array and '.
+            throw new \InvalidArgumentException(sprintf('Call to %s with an invalid argument (%s), only array and ' .
                 'closure are allowed', __METHOD__, $argsOrClosure));
         }
         return $this;
@@ -482,9 +493,27 @@ class Expectation implements ExpectationInterface
     }
 
     /**
+     * Expected arguments should partially match the real arguments
+     *
+     * @param mixed ...$expectedArgs
+     * @return self
+     */
+    public function withSomeOfArgs(...$expectedArgs)
+    {
+        return $this->withArgs(function (...$args) use ($expectedArgs) {
+            foreach ($expectedArgs as $expectedArg) {
+                if (!in_array($expectedArg, $args, true)) {
+                    return false;
+                }
+            }
+            return true;
+        });
+    }
+
+    /**
      * Set a return value, or sequential queue of return values
      *
-     * @param mixed[] ...$args
+     * @param mixed ...$args
      * @return self
      */
     public function andReturn(...$args)
@@ -496,7 +525,7 @@ class Expectation implements ExpectationInterface
     /**
      * Set a return value, or sequential queue of return values
      *
-     * @param mixed[] ...$args
+     * @param mixed ...$args
      * @return self
      */
     public function andReturns(...$args)
@@ -531,12 +560,34 @@ class Expectation implements ExpectationInterface
      * values. The arguments passed to the expected method are passed to the
      * closures as parameters.
      *
-     * @param callable[] ...$args
+     * @param callable ...$args
      * @return self
      */
     public function andReturnUsing(...$args)
     {
         $this->_closureQueue = $args;
+        return $this;
+    }
+
+    /**
+     * Sets up a closure to return the nth argument from the expected method call
+     *
+     * @param int $index
+     * @return self
+     */
+    public function andReturnArg($index)
+    {
+        if (!is_int($index) || $index < 0) {
+            throw new \InvalidArgumentException("Invalid argument index supplied. Index must be a non-negative integer.");
+        }
+        $closure = function (...$args) use ($index) {
+            if (array_key_exists($index, $args)) {
+                return $args[$index];
+            }
+            throw new \OutOfBoundsException("Cannot return an argument value. No argument exists for the index $index");
+        };
+
+        $this->_closureQueue = [$closure];
         return $this;
     }
 
@@ -547,7 +598,7 @@ class Expectation implements ExpectationInterface
      */
     public function andReturnUndefined()
     {
-        $this->andReturn(new \Mockery\Undefined);
+        $this->andReturn(new \Mockery\Undefined());
         return $this;
     }
 
@@ -627,6 +678,25 @@ class Expectation implements ExpectationInterface
     }
 
     /**
+     * Sets up a closure that will yield each of the provided args
+     *
+     * @param mixed ...$args
+     * @return self
+     */
+    public function andYield(...$args)
+    {
+        $this->_closureQueue = [
+            static function () use ($args) {
+                foreach ($args as $arg) {
+                    yield $arg;
+                }
+            },
+        ];
+
+        return $this;
+    }
+
+    /**
      * Alias to andSet(). Allows the natural English construct
      * - set('foo', 'bar')->andReturn('bar')
      *
@@ -664,8 +734,25 @@ class Expectation implements ExpectationInterface
         if (!is_int($limit)) {
             throw new \InvalidArgumentException('The passed Times limit should be an integer value');
         }
+
+        if ($this->_expectedCount === 0) {
+            @trigger_error(self::ERROR_ZERO_INVOCATION, E_USER_DEPRECATED);
+            // throw new \InvalidArgumentException(self::ERROR_ZERO_INVOCATION);
+        }
+
+        if ($limit === 0) {
+            $this->_countValidators = [];
+        }
+
+        $this->_expectedCount = $limit;
+
         $this->_countValidators[$this->_countValidatorClass] = new $this->_countValidatorClass($this, $limit);
-        $this->_countValidatorClass = 'Mockery\CountValidator\Exact';
+
+        if ('Mockery\CountValidator\Exact' !== $this->_countValidatorClass) {
+            $this->_countValidatorClass = 'Mockery\CountValidator\Exact';
+            unset($this->_countValidators[$this->_countValidatorClass]);
+        }
+
         return $this;
     }
 
@@ -821,7 +908,7 @@ class Expectation implements ExpectationInterface
     /**
      * Return the parent mock of the expectation
      *
-     * @return \Mockery\MockInterface
+     * @return \Mockery\LegacyMockInterface|\Mockery\MockInterface
      */
     public function getMock()
     {

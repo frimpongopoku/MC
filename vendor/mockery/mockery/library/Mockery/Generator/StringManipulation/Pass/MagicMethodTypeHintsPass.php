@@ -1,21 +1,11 @@
 <?php
+
 /**
- * Mockery
+ * Mockery (https://docs.mockery.io/)
  *
- * LICENSE
- *
- * This source file is subject to the new BSD license that is bundled
- * with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://github.com/padraic/mockery/blob/master/LICENSE
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to padraic@php.net so we can send you a copy immediately.
- *
- * @category   Mockery
- * @package    Mockery
- * @copyright  Copyright (c) 2010 Pádraic Brady (http://blog.astrumfutura.com)
- * @license    http://github.com/padraic/mockery/blob/master/LICENSE New BSD License
+ * @copyright https://github.com/mockery/mockery/blob/HEAD/COPYRIGHT.md
+ * @license   https://github.com/mockery/mockery/blob/HEAD/LICENSE BSD 3-Clause License
+ * @link      https://github.com/mockery/mockery for the canonical source repository
  */
 
 namespace Mockery\Generator\StringManipulation\Pass;
@@ -23,6 +13,7 @@ namespace Mockery\Generator\StringManipulation\Pass;
 use Mockery\Generator\MockConfiguration;
 use Mockery\Generator\TargetClassInterface;
 use Mockery\Generator\Method;
+use Mockery\Generator\Parameter;
 
 class MagicMethodTypeHintsPass implements Pass
 {
@@ -111,7 +102,7 @@ class MagicMethodTypeHintsPass implements Pass
     }
 
     /**
-     * Checks if the method is declared withing code.
+     * Checks if the method is declared within code.
      *
      * @param int $code
      * @param Method $method
@@ -153,9 +144,7 @@ class MagicMethodTypeHintsPass implements Pass
         }
 
         $groupMatches = end($parameterMatches);
-        $parameterNames = is_array($groupMatches) ?
-            $groupMatches                         :
-            array($groupMatches);
+        $parameterNames = is_array($groupMatches) ? $groupMatches : [$groupMatches];
 
         return $parameterNames;
     }
@@ -173,25 +162,30 @@ class MagicMethodTypeHintsPass implements Pass
     ) {
         $declaration = 'public';
         $declaration .= $method->isStatic() ? ' static' : '';
-        $declaration .= ' function '.$method->getName().'(';
+        $declaration .= ' function ' . $method->getName() . '(';
 
         foreach ($method->getParameters() as $index => $parameter) {
-            $declaration .= $parameter->getTypeHintAsString().' ';
-            $name = isset($namedParameters[$index]) ?
-                $namedParameters[$index]            :
-                $parameter->getName();
-            $declaration .= '$'.$name;
+            $declaration .= $this->renderTypeHint($parameter);
+            $name = isset($namedParameters[$index]) ? $namedParameters[$index] : $parameter->getName();
+            $declaration .= '$' . $name;
             $declaration .= ',';
         }
         $declaration = rtrim($declaration, ',');
         $declaration .= ') ';
 
         $returnType = $method->getReturnType();
-        if (!empty($returnType)) {
-            $declaration .= ': '.$returnType;
+        if ($returnType !== null) {
+            $declaration .= sprintf(': %s', $returnType);
         }
 
         return $declaration;
+    }
+
+    protected function renderTypeHint(Parameter $param)
+    {
+        $typeHint = $param->getTypeHint();
+
+        return $typeHint === null ? '' : sprintf('%s ', $typeHint);
     }
 
     /**

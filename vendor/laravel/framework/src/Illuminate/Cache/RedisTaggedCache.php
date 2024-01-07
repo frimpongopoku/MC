@@ -10,6 +10,7 @@ class RedisTaggedCache extends TaggedCache
      * @var string
      */
     const REFERENCE_KEY_FOREVER = 'forever_ref';
+
     /**
      * Standard reference key.
      *
@@ -21,7 +22,7 @@ class RedisTaggedCache extends TaggedCache
      * Store an item in the cache.
      *
      * @param  string  $key
-     * @param  mixed   $value
+     * @param  mixed  $value
      * @param  \DateTimeInterface|\DateInterval|int|null  $ttl
      * @return bool
      */
@@ -40,35 +41,35 @@ class RedisTaggedCache extends TaggedCache
      * Increment the value of an item in the cache.
      *
      * @param  string  $key
-     * @param  mixed   $value
-     * @return void
+     * @param  mixed  $value
+     * @return int|bool
      */
     public function increment($key, $value = 1)
     {
         $this->pushStandardKeys($this->tags->getNamespace(), $key);
 
-        parent::increment($key, $value);
+        return parent::increment($key, $value);
     }
 
     /**
      * Decrement the value of an item in the cache.
      *
      * @param  string  $key
-     * @param  mixed   $value
-     * @return void
+     * @param  mixed  $value
+     * @return int|bool
      */
     public function decrement($key, $value = 1)
     {
         $this->pushStandardKeys($this->tags->getNamespace(), $key);
 
-        parent::decrement($key, $value);
+        return parent::decrement($key, $value);
     }
 
     /**
      * Store an item in the cache indefinitely.
      *
      * @param  string  $key
-     * @param  mixed   $value
+     * @param  mixed  $value
      * @return bool
      */
     public function forever($key, $value)
@@ -88,7 +89,9 @@ class RedisTaggedCache extends TaggedCache
         $this->deleteForeverKeys();
         $this->deleteStandardKeys();
 
-        return parent::flush();
+        $this->tags->flush();
+
+        return true;
     }
 
     /**
@@ -175,13 +178,26 @@ class RedisTaggedCache extends TaggedCache
      */
     protected function deleteValues($referenceKey)
     {
-        $values = array_unique($this->store->connection()->smembers($referenceKey));
+        $cursor = $defaultCursorValue = '0';
 
-        if (count($values) > 0) {
-            foreach (array_chunk($values, 1000) as $valuesChunk) {
-                call_user_func_array([$this->store->connection(), 'del'], $valuesChunk);
+        do {
+            [$cursor, $valuesChunk] = $this->store->connection()->sscan(
+                $referenceKey, $cursor, ['match' => '*', 'count' => 1000]
+            );
+
+            // PhpRedis client returns false if set does not exist or empty. Array destruction
+            // on false stores null in each variable. If valuesChunk is null, it means that
+            // there were not results from the previously executed "sscan" Redis command.
+            if (is_null($valuesChunk)) {
+                break;
             }
-        }
+
+            $valuesChunk = array_unique($valuesChunk);
+
+            if (count($valuesChunk) > 0) {
+                $this->store->connection()->del(...$valuesChunk);
+            }
+        } while (((string) $cursor) !== $defaultCursorValue);
     }
 
     /**

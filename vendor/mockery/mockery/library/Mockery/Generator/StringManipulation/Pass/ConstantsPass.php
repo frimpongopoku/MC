@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * Mockery (https://docs.mockery.io/)
+ *
+ * @copyright https://github.com/mockery/mockery/blob/HEAD/COPYRIGHT.md
+ * @license   https://github.com/mockery/mockery/blob/HEAD/LICENSE BSD 3-Clause License
+ * @link      https://github.com/mockery/mockery for the canonical source repository
+ */
+
 namespace Mockery\Generator\StringManipulation\Pass;
 
 use Mockery\Generator\MockConfiguration;
@@ -21,7 +29,7 @@ class ConstantsPass implements Pass
 
         $constantsCode = '';
         foreach ($cm as $constant => $value) {
-            $constantsCode .= sprintf("\n    const %s = '%s';\n", $constant, $value);
+            $constantsCode .= sprintf("\n    const %s = %s;\n", $constant, var_export($value, true));
         }
 
         $i = strrpos($code, '}');

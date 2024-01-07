@@ -30,8 +30,6 @@ class PDF{
     protected $view;
 
     protected $rendered = false;
-    protected $orientation;
-    protected $paper;
     protected $showWarnings;
     protected $public_path;
 
@@ -67,8 +65,6 @@ class PDF{
      * @return $this
      */
     public function setPaper($paper, $orientation = 'portrait'){
-        $this->paper = $paper;
-        $this->orientation = $orientation;
         $this->dompdf->setPaper($paper, $orientation);
         return $this;
     }
@@ -107,6 +103,19 @@ class PDF{
     public function loadFile($file){
         $this->dompdf->loadHtmlFile($file);
         $this->rendered = false;
+        return $this;
+    }
+    
+    /**
+     * Add metadata info
+     *
+     * @param array $info
+     * @return static
+     */
+    public function addInfo($info){
+        foreach($info as $name=>$value){
+            $this->dompdf->add_info($name, $value);
+        }
         return $this;
     }
 
@@ -195,8 +204,6 @@ class PDF{
         if(!$this->dompdf){
             throw new Exception('DOMPDF not created yet');
         }
-
-        $this->dompdf->setPaper($this->paper, $this->orientation);
 
         $this->dompdf->render();
 

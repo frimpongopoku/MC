@@ -1,24 +1,16 @@
 <?php
+
 /**
- * Mockery
+ * Mockery (https://docs.mockery.io/)
  *
- * LICENSE
- *
- * This source file is subject to the new BSD license that is bundled
- * with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://github.com/padraic/mockery/blob/master/LICENSE
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to padraic@php.net so we can send you a copy immediately.
- *
- * @category   Mockery
- * @package    Mockery
- * @copyright  Copyright (c) 2010 Pádraic Brady (http://blog.astrumfutura.com)
- * @license    http://github.com/padraic/mockery/blob/master/LICENSE New BSD License
+ * @copyright https://github.com/mockery/mockery/blob/HEAD/COPYRIGHT.md
+ * @license   https://github.com/mockery/mockery/blob/HEAD/LICENSE BSD 3-Clause License
+ * @link      https://github.com/mockery/mockery for the canonical source repository
  */
 
 namespace Mockery;
+
+use Mockery\Matcher\MatcherInterface;
 
 class Configuration
 {
@@ -41,6 +33,11 @@ class Configuration
     protected $_allowMockingMethodsUnnecessarily = true;
 
     /**
+     * @var QuickDefinitionsConfiguration
+     */
+    protected $_quickDefinitionsConfiguration;
+
+    /**
      * Parameter map for use with PHP internal classes.
      *
      * @var array
@@ -56,6 +53,25 @@ class Configuration
      * @see https://github.com/mockery/mockery/issues/268
      */
     protected $_reflectionCacheEnabled = true;
+
+    public function __construct()
+    {
+        $this->_quickDefinitionsConfiguration = new QuickDefinitionsConfiguration();
+    }
+
+    /**
+     * Custom object formatters
+     *
+     * @var array
+     */
+    protected $_objectFormatters = array();
+
+    /**
+     * Default argument matchers
+     *
+     * @var array
+     */
+    protected $_defaultMatchers = array();
 
     /**
      * Set boolean to allow/prevent mocking of non-existent methods
@@ -78,15 +94,15 @@ class Configuration
     }
 
     /**
-     * @deprecated
-     *
      * Set boolean to allow/prevent unnecessary mocking of methods
      *
      * @param bool $flag
+     *
+     * @deprecated since 1.4.0
      */
     public function allowMockingMethodsUnnecessarily($flag = true)
     {
-        trigger_error(sprintf("The %s method is deprecated and will be removed in a future version of Mockery", __METHOD__), E_USER_DEPRECATED);
+        @trigger_error(sprintf("The %s method is deprecated and will be removed in a future version of Mockery", __METHOD__), E_USER_DEPRECATED);
 
         $this->_allowMockingMethodsUnnecessarily = (bool) $flag;
     }
@@ -95,10 +111,12 @@ class Configuration
      * Return flag indicating whether mocking non-existent methods allowed
      *
      * @return bool
+     *
+     * @deprecated since 1.4.0
      */
     public function mockingMethodsUnnecessarilyAllowed()
     {
-        trigger_error(sprintf("The %s method is deprecated and will be removed in a future version of Mockery", __METHOD__), E_USER_DEPRECATED);
+        @trigger_error(sprintf("The %s method is deprecated and will be removed in a future version of Mockery", __METHOD__), E_USER_DEPRECATED);
 
         return $this->_allowMockingMethodsUnnecessarily;
     }
@@ -113,6 +131,10 @@ class Configuration
      */
     public function setInternalClassMethodParamMap($class, $method, array $map)
     {
+        if (\PHP_MAJOR_VERSION > 7) {
+            throw new \LogicException('Internal class parameter overriding is not available in PHP 8. Incompatible signatures have been reclassified as fatal errors.');
+        }
+
         if (!isset($this->_internalClassParamMap[strtolower($class)])) {
             $this->_internalClassParamMap[strtolower($class)] = array();
         }
@@ -120,7 +142,7 @@ class Configuration
     }
 
     /**
-     * Remove all overriden parameter maps from internal PHP classes.
+     * Remove all overridden parameter maps from internal PHP classes.
      */
     public function resetInternalClassMethodParamMaps()
     {
@@ -130,7 +152,7 @@ class Configuration
     /**
      * Get the parameter map of an internal PHP class method
      *
-     * @return array
+     * @return array|null
      */
     public function getInternalClassMethodParamMap($class, $method)
     {
@@ -152,6 +174,14 @@ class Configuration
     public function getConstantsMap()
     {
         return $this->_constantsMap;
+    }
+
+    /**
+     * Returns the quick definitions configuration
+     */
+    public function getQuickDefinitions(): QuickDefinitionsConfiguration
+    {
+        return $this->_quickDefinitionsConfiguration;
     }
 
     /**
@@ -186,5 +216,67 @@ class Configuration
     public function reflectionCacheEnabled()
     {
         return $this->_reflectionCacheEnabled;
+    }
+
+    public function setObjectFormatter($class, $formatterCallback)
+    {
+        $this->_objectFormatters[$class] = $formatterCallback;
+    }
+
+    public function getObjectFormatter($class, $defaultFormatter)
+    {
+        $parentClass = $class;
+        do {
+            $classes[] = $parentClass;
+            $parentClass = get_parent_class($parentClass);
+        } while ($parentClass);
+        $classesAndInterfaces = array_merge($classes, class_implements($class));
+        foreach ($classesAndInterfaces as $type) {
+            if (isset($this->_objectFormatters[$type])) {
+                return $this->_objectFormatters[$type];
+            }
+        }
+        return $defaultFormatter;
+    }
+
+    /**
+     * @param string $class
+     * @param string $matcherClass
+     */
+    public function setDefaultMatcher($class, $matcherClass)
+    {
+        $isHamcrest = is_a($matcherClass, \Hamcrest\Matcher::class, true) || is_a($matcherClass, \Hamcrest_Matcher::class, true);
+        if (
+            !is_a($matcherClass, MatcherInterface::class, true) &&
+            !$isHamcrest
+        ) {
+            throw new InvalidArgumentException(sprintf(
+                "Matcher class must implement %s, '%s' given.",
+                MatcherInterface::class,
+                $matcherClass
+            ));
+        }
+
+        if ($isHamcrest) {
+            @trigger_error('Hamcrest package has been deprecated and will be removed in 2.0', E_USER_DEPRECATED);
+        }
+
+        $this->_defaultMatchers[$class] = $matcherClass;
+    }
+
+    public function getDefaultMatcher($class)
+    {
+        $parentClass = $class;
+        do {
+            $classes[] = $parentClass;
+            $parentClass = get_parent_class($parentClass);
+        } while ($parentClass);
+        $classesAndInterfaces = array_merge($classes, class_implements($class));
+        foreach ($classesAndInterfaces as $type) {
+            if (isset($this->_defaultMatchers[$type])) {
+                return $this->_defaultMatchers[$type];
+            }
+        }
+        return null;
     }
 }

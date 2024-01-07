@@ -23,8 +23,7 @@ interface TranslationReaderInterface
     /**
      * Reads translation messages from a directory to the catalogue.
      *
-     * @param string           $directory
-     * @param MessageCatalogue $catalogue
+     * @return void
      */
-    public function read($directory, MessageCatalogue $catalogue);
+    public function read(string $directory, MessageCatalogue $catalogue);
 }

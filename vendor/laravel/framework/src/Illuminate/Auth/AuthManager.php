@@ -3,8 +3,8 @@
 namespace Illuminate\Auth;
 
 use Closure;
-use InvalidArgumentException;
 use Illuminate\Contracts\Auth\Factory as FactoryContract;
+use InvalidArgumentException;
 
 class AuthManager implements FactoryContract
 {
@@ -58,7 +58,7 @@ class AuthManager implements FactoryContract
     /**
      * Attempt to get the guard from the local cache.
      *
-     * @param  string  $name
+     * @param  string|null  $name
      * @return \Illuminate\Contracts\Auth\Guard|\Illuminate\Contracts\Auth\StatefulGuard
      */
     public function guard($name = null)
@@ -122,7 +122,11 @@ class AuthManager implements FactoryContract
     {
         $provider = $this->createUserProvider($config['provider'] ?? null);
 
-        $guard = new SessionGuard($name, $provider, $this->app['session.store']);
+        $guard = new SessionGuard(
+            $name,
+            $provider,
+            $this->app['session.store'],
+        );
 
         // When using the remember me functionality of the authentication services we
         // will need to be set the encryption instance of the guard, which allows
@@ -137,6 +141,10 @@ class AuthManager implements FactoryContract
 
         if (method_exists($guard, 'setRequest')) {
             $guard->setRequest($this->app->refresh('request', $guard, 'setRequest'));
+        }
+
+        if (isset($config['remember'])) {
+            $guard->setRememberDuration($config['remember']);
         }
 
         return $guard;
@@ -281,6 +289,41 @@ class AuthManager implements FactoryContract
     public function provider($name, Closure $callback)
     {
         $this->customProviderCreators[$name] = $callback;
+
+        return $this;
+    }
+
+    /**
+     * Determines if any guards have already been resolved.
+     *
+     * @return bool
+     */
+    public function hasResolvedGuards()
+    {
+        return count($this->guards) > 0;
+    }
+
+    /**
+     * Forget all of the resolved guard instances.
+     *
+     * @return $this
+     */
+    public function forgetGuards()
+    {
+        $this->guards = [];
+
+        return $this;
+    }
+
+    /**
+     * Set the application instance used by the manager.
+     *
+     * @param  \Illuminate\Contracts\Foundation\Application  $app
+     * @return $this
+     */
+    public function setApplication($app)
+    {
+        $this->app = $app;
 
         return $this;
     }

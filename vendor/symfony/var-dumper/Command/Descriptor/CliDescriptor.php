@@ -39,7 +39,7 @@ class CliDescriptor implements DumpDescriptorInterface
         $io = $output instanceof SymfonyStyle ? $output : new SymfonyStyle(new ArrayInput([]), $output);
         $this->dumper->setColors($output->isDecorated());
 
-        $rows = [['date', date('r', $context['timestamp'])]];
+        $rows = [['date', date('r', (int) $context['timestamp'])]];
         $lastIdentifier = $this->lastIdentifier;
         $this->lastIdentifier = $clientId;
 
@@ -62,18 +62,16 @@ class CliDescriptor implements DumpDescriptorInterface
 
         if (isset($context['source'])) {
             $source = $context['source'];
-            $rows[] = ['source', sprintf('%s on line %d', $source['name'], $source['line'])];
+            $sourceInfo = sprintf('%s on line %d', $source['name'], $source['line']);
+            if ($fileLink = $source['file_link'] ?? null) {
+                $sourceInfo = sprintf('<href=%s>%s</>', $fileLink, $sourceInfo);
+            }
+            $rows[] = ['source', $sourceInfo];
             $file = $source['file_relative'] ?? $source['file'];
             $rows[] = ['file', $file];
-            $fileLink = $source['file_link'] ?? null;
         }
 
         $io->table([], $rows);
-
-        if (isset($fileLink)) {
-            $io->writeln(['<info>Open source in your IDE/browser:</info>', $fileLink]);
-            $io->newLine();
-        }
 
         $this->dumper->dump($data);
         $io->newLine();
